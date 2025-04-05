@@ -40,7 +40,7 @@
 
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
-*.dll
+#*.dll
 *.bpl
 *.bpi
 *.dcp
