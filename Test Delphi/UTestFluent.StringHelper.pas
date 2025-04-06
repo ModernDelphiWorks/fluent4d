@@ -253,7 +253,7 @@ procedure TFluentStringTest.TestGroupBy;
 var
   LString: string;
   LGroups: IGroupedEnumerator<Boolean, Char>;
-  LEnum: IFluentEnum<IGrouping<Boolean, Char>>;
+  LEnum: IFluentEnumerator<IGrouping<Boolean, Char>>;
   LGroup: IGrouping<Boolean, Char>;
   LArray: TArray<Char>;
   LCount: Integer;

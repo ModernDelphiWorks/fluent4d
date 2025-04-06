@@ -643,7 +643,7 @@ end;
 procedure TArrayStaticTest.TestLazyGroupBy;
 var
   LGroups: IGroupedEnumerator<Integer, Integer>;
-  LEnum: IFluentEnum<IGrouping<Integer, Integer>>;
+  LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
   LArray: TArray<Integer>;
   LCount: Integer;

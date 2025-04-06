@@ -42,10 +42,10 @@ type
   public
     constructor Create(const AList: TList<T>; AOwnsList: Boolean = False);
     destructor Destroy; override;
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
   end;
 
-  TListEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TListEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
     FList: TList<T>;
     FIndex: Integer;
@@ -64,10 +64,10 @@ type
   public
     constructor Create(const ADict: TDictionary<K, V>; AOwnsDict: Boolean = False);
     destructor Destroy; override;
-    function GetEnumerator: IFluentEnum<TPair<K, V>>;
+    function GetEnumerator: IFluentEnumerator<TPair<K, V>>;
   end;
 
-  TDictionaryEnumerator<K, V> = class(TInterfacedObject, IFluentEnum<TPair<K, V>>)
+  TDictionaryEnumerator<K, V> = class(TInterfacedObject, IFluentEnumerator<TPair<K, V>>)
   private
     FEnumerator: TDictionary<K, V>.TPairEnumerator;
   public
@@ -86,7 +86,7 @@ type
   public
     constructor Create(const AArray: TArray<T>);
     destructor Destroy; override;
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
   end;
 
   TStringAdapter = class(TInterfacedObject, IFluentEnumerableBase<char>)
@@ -94,10 +94,10 @@ type
     FString: string;
   public
     constructor Create(const AString: string);
-    function GetEnumerator: IFluentEnum<char>;
+    function GetEnumerator: IFluentEnumerator<char>;
   end;
 
-  TStringEnumerator = class(TInterfacedObject, IFluentEnum<char>)
+  TStringEnumerator = class(TInterfacedObject, IFluentEnumerator<char>)
   private
     FString: string;
     FIndex: Integer;
@@ -116,7 +116,7 @@ type
   public
     constructor Create(const AArray: array of T);
     destructor Destroy; override;
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
   end;
 
 implementation
@@ -136,7 +136,7 @@ begin
   inherited;
 end;
 
-function TListAdapter<T>.GetEnumerator: IFluentEnum<T>;
+function TListAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TListEnumerator<T>.Create(FList);
 end;
@@ -180,7 +180,7 @@ begin
   inherited;
 end;
 
-function TDictionaryAdapter<K, V>.GetEnumerator: IFluentEnum<TPair<K, V>>;
+function TDictionaryAdapter<K, V>.GetEnumerator: IFluentEnumerator<TPair<K, V>>;
 begin
   Result := TDictionaryEnumerator<K, V>.Create(FDict.GetEnumerator);
 end;
@@ -227,7 +227,7 @@ begin
   inherited;
 end;
 
-function TArrayAdapter<T>.GetEnumerator: IFluentEnum<T>;
+function TArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TListEnumerator<T>.Create(FList);;
 end;
@@ -239,7 +239,7 @@ begin
   FString := AString;
 end;
 
-function TStringAdapter.GetEnumerator: IFluentEnum<char>;
+function TStringAdapter.GetEnumerator: IFluentEnumerator<char>;
 begin
   Result := TStringEnumerator.Create(FString);
 end;
@@ -288,7 +288,7 @@ begin
   inherited;
 end;
 
-function TNonGenericArrayAdapter<T>.GetEnumerator: IFluentEnum<T>;
+function TNonGenericArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TListEnumerator<T>.Create(FList);
 end;

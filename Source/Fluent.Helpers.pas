@@ -189,7 +189,7 @@ end;
 
 function TFluentString.Sum: Integer;
 var
-  LEnum: IFluentEnum<Char>;
+  LEnum: IFluentEnumerator<Char>;
   LSum: Integer;
 begin
   LEnum := AsEnumerable(Self).GetEnumerator;
@@ -228,7 +228,7 @@ end;
 
 function TFluentString.All(const APredicate: TFunc<Char, Boolean>): Boolean;
 var
-  LEnum: IFluentEnum<Char>;
+  LEnum: IFluentEnumerator<Char>;
 begin
   LEnum := AsEnumerable(Self).GetEnumerator;
   while LEnum.MoveNext do

@@ -432,7 +432,7 @@ end;
 procedure TListTest.TestListGroupBy;
 var
   LGroups: IGroupedEnumerator<Integer, Integer>;
-  LEnum: IFluentEnum<IGrouping<Integer, Integer>>;
+  LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
   LArray: TArray<Integer>;
   LCount: Integer;
@@ -469,36 +469,32 @@ end;
 
 procedure TListTest.TestListGroupJoin;
 var
-  LInner: TFluentList<string>;
+  LInner: IFluentList<string>;
   LJoined: IFluentEnumerable<string>;
   LArray: TArray<string>;
 begin
   FList.AddRange([1, 2, 3]);
   LInner := TFluentList<string>.Create;
-  try
-    LInner.AddRange(['A1', 'B1', 'C2']);
-    LJoined := FList.AsEnumerable.GroupJoin<string, Integer, string>(
-      LInner.AsEnumerable,
-      function(Num: Integer): Integer
-      begin
-        Result := Num;
-      end,
-      function(Str: string): Integer
-      begin
-        Result := StrToInt(Str[2]);
-      end,
-      function(Num: Integer; Matches: IFluentWrapper<string>): string
-      begin
-        Result := Num.ToString + ': ' + string.Join(', ', Matches.Value.ToArray);
-      end);
-    LArray := LJoined.ToArray;
-    Assert.AreEqual(3, Length(LArray), 'Joined list should have 3 elements');
-    Assert.AreEqual('1: A1, B1', LArray[0], 'First element should be "1: A1, B1"');
-    Assert.AreEqual('2: C2', LArray[1], 'Second element should be "2: C2"');
-    Assert.AreEqual('3: ', LArray[2], 'Third element should be "3: "');
-  finally
-    LInner.Free;
-  end;
+  LInner.AddRange(['A1', 'B1', 'C2']);
+  LJoined := FList.AsEnumerable.GroupJoin<string, Integer, string>(
+    LInner.AsEnumerable,
+    function(Num: Integer): Integer
+    begin
+      Result := Num;
+    end,
+    function(Str: string): Integer
+    begin
+      Result := StrToInt(Str[2]);
+    end,
+    function(Num: Integer; Matches: IFluentWrapper<string>): string
+    begin
+      Result := Num.ToString + ': ' + string.Join(', ', Matches.Value.ToArray);
+    end);
+  LArray := LJoined.ToArray;
+  Assert.AreEqual(3, Length(LArray), 'Joined list should have 3 elements');
+  Assert.AreEqual('1: A1, B1', LArray[0], 'First element should be "1: A1, B1"');
+  Assert.AreEqual('2: C2', LArray[1], 'Second element should be "2: C2"');
+  Assert.AreEqual('3: ', LArray[2], 'Third element should be "3: "');
 end;
 
 procedure TListTest.TestListZip;

@@ -61,95 +61,92 @@ type
 
   TFluentArray = record
   public
-    class procedure FreeValues<T>(const Values: array of T); overload; static;
-    class procedure FreeValues<T>(var Values: TArray<T>); overload; static;
-    class procedure Sort<T>(var Values: array of T); overload; static;
-    class procedure Sort<T>(var Values: array of T; const Comparer: IComparer<T>); overload; static;
-    class procedure Sort<T>(var Values: array of T; const Comparer: IComparer<T>; Index, Count: NativeInt); overload; static;
+    class procedure FreeValues<T>(const AValues: array of T); overload; static;
+    class procedure FreeValues<T>(var AValues: TArray<T>); overload; static;
+    class procedure Sort<T>(var AValues: array of T); overload; static;
+    class procedure Sort<T>(var AValues: array of T; const Comparer: IComparer<T>); overload; static;
+    class procedure Sort<T>(var AValues: array of T; const Comparer: IComparer<T>; AIndex, Count: NativeInt); overload; static;
     class function From<T>(const AArray: array of T): IFluentEnumerable<T>; static;
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>; Index, Count: NativeInt): Boolean; overload; static;
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>): Boolean; overload; static;
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>; AIndex, Count: NativeInt): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt): Boolean; overload; static;
 {$IF Defined(CPU64BITS)}
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer; const Comparer: IComparer<T>; Index, Count: Integer): Boolean; overload; static;
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer; const Comparer: IComparer<T>): Boolean; overload; static;
-    class function BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer; const Comparer: IComparer<T>; AIndex, Count: Integer): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer; const Comparer: IComparer<T>): Boolean; overload; static;
+    class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer): Boolean; overload; static;
 {$ENDIF CPU64BITS}
     class procedure Copy<T>(const Source: array of T; var Destination: array of T; SourceIndex, DestIndex, Count: NativeInt); overload; static;
     class procedure Copy<T>(const Source: array of T; var Destination: array of T; Count: NativeInt); overload; static;
     class function Concat<T>(const Args: array of TArray<T>): TArray<T>; static;
-    class function IndexOf<T>(const Values: array of T; const Item: T): NativeInt; overload; static;
-    class function IndexOf<T>(const Values: array of T; const Item: T; Index: NativeInt): NativeInt; overload; static;
-    class function IndexOf<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>; Index, Count: NativeInt): NativeInt; overload; static;
-    class function LastIndexOf<T>(const Values: array of T; const Item: T): NativeInt; overload; static;
-    class function LastIndexOf<T>(const Values: array of T; const Item: T; Index: NativeInt): NativeInt; overload; static;
-    class function LastIndexOf<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>; Index, Count: NativeInt): NativeInt; overload; static;
-    class function Contains<T>(const Values: array of T; const Item: T): Boolean; overload; static;
-    class function Contains<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>): Boolean; overload; static;
-    class function ToString<T>(const Values: array of T; const AFormatSettings: TFormatSettings; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string; reintroduce; overload; static;
-    class function ToString<T>(const Values: array of T; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string; reintroduce; overload; static;
+    class function IndexOf<T>(const AValues: array of T; const AItem: T): NativeInt; overload; static;
+    class function IndexOf<T>(const AValues: array of T; const AItem: T; AIndex: NativeInt): NativeInt; overload; static;
+    class function IndexOf<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>; AIndex, Count: NativeInt): NativeInt; overload; static;
+    class function LastIndexOf<T>(const AValues: array of T; const AItem: T): NativeInt; overload; static;
+    class function LastIndexOf<T>(const AValues: array of T; const AItem: T; AIndex: NativeInt): NativeInt; overload; static;
+    class function LastIndexOf<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>; AIndex, Count: NativeInt): NativeInt; overload; static;
+    class function Contains<T>(const AValues: array of T; const AItem: T): Boolean; overload; static;
+    class function Contains<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>): Boolean; overload; static;
+    class function ToString<T>(const AValues: array of T; const AFormatSettings: TFormatSettings; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string; reintroduce; overload; static;
+    class function ToString<T>(const AValues: array of T; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string; reintroduce; overload; static;
   end;
 
   IFluentList<T> = interface(IInterface)
     ['{2749C02A-9973-4747-A4D3-29376DFD6242}']
     function GetCapacity: NativeInt;
-    procedure SetCapacity(Value: NativeInt);
-    function GetCount: NativeInt;
-    procedure SetCount(Value: NativeInt);
-    function GetIsEmpty: Boolean;
-    function GetItem(Index: NativeInt): T;
-    procedure SetItem(Index: NativeInt; const Value: T);
+    procedure SetCapacity(const AValue: NativeInt);
+    function GetItem(AIndex: NativeInt): T;
+    procedure SetItem(AIndex: NativeInt; const AValue: T);
     function GetList: TArray<T>;
     function GetComparer: IComparer<T>;
-    procedure SetOnNotify(const Value: TCollectionNotifyEvent<T>);
+    procedure SetOnNotify(const AValue: TCollectionNotifyEvent<T>);
     function GetOnNotify: TCollectionNotifyEvent<T>;
     //
-    procedure AddRange(const Values: array of T); overload;
-    procedure AddRange(const Collection: IEnumerable<T>); overload;
-    procedure AddRange(const Collection: TEnumerable<T>); overload;
-    procedure Insert(Index: NativeInt; const Value: T);
-    procedure InsertRange(Index: NativeInt; const Values: array of T; Count: NativeInt); overload;
-    procedure InsertRange(Index: NativeInt; const Values: array of T); overload;
-    procedure InsertRange(Index: NativeInt; const Collection: IEnumerable<T>); overload;
-    procedure InsertRange(Index: NativeInt; const Collection: TEnumerable<T>); overload;
-    procedure Pack;
-    procedure Delete(Index: NativeInt);
-    procedure DeleteRange(AIndex, ACount: NativeInt);
-    procedure Exchange(Index1, Index2: NativeInt);
-    procedure Move(CurIndex, NewIndex: NativeInt);
     procedure Clear;
+    procedure AddRange(const AValues: array of T); overload;
+    procedure AddRange(const ACollection: IEnumerable<T>); overload;
+    procedure AddRange(const ACollection: TEnumerable<T>); overload;
+    procedure Insert(const AIndex: NativeInt; const AValue: T);
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T; ACount: NativeInt); overload;
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: TEnumerable<T>); overload;
+    procedure Pack;
+    procedure Delete(const AIndex: NativeInt);
+    procedure DeleteRange(const AIndex, ACount: NativeInt);
+    procedure Exchange(const AIndex1, AIndex2: NativeInt);
+    procedure Move(const ACurIndex, ANewIndex: NativeInt);
     procedure Reverse;
     procedure Sort; overload;
     procedure Sort(const AComparer: IComparer<T>); overload;
-    procedure Sort(const AComparer: IComparer<T>; Index, Count: NativeInt); overload;
+    procedure Sort(const AComparer: IComparer<T>; AIndex, ACount: NativeInt); overload;
     procedure TrimExcess;
-    function Add(const Value: T): NativeInt;
-    function Remove(const Value: T): NativeInt;
-    function RemoveItem(const Value: T; Direction: TDirection): NativeInt;
-    function ExtractItem(const Value: T; Direction: TDirection): T;
-    function Extract(const Value: T): T;
-    function ExtractAt(Index: NativeInt): T;
+    function RemoveItem(const AValue: T; Direction: TDirection): NativeInt;
+    function ExtractItem(const AValue: T; Direction: TDirection): T;
+    function Extract(const AValue: T): T;
+    function ExtractAt(constIndex: NativeInt): T;
     function First: T;
     function Last: T;
     function Expand: IFluentList<T>;
-    function Contains(const Value: T): Boolean;
-    function IndexOf(const Value: T): NativeInt;
-    function IndexOfItem(const Value: T; Direction: TDirection): NativeInt;
-    function LastIndexOf(const Value: T): NativeInt;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; Index, Count: NativeInt): Boolean; overload;
-{$IF Defined(CPU64BITS)}
-    function BinarySearch(const Item: T; out FoundIndex: Integer): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>; Index, Count: Integer): Boolean; overload;
-{$ENDIF}
-    function ToArray: TArray<T>;
+    function IndexOf(const AValue: T): NativeInt;
+    function IndexOfItem(const AValue: T; Direction: TDirection): NativeInt;
+    function LastIndexOf(const AValue: T): NativeInt;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; AIndex, Count: NativeInt): Boolean; overload;
     function AsEnumerable: IFluentEnumerable<T>;
+    function Add(const AValue: T): NativeInt;
+    function Remove(const AValue: T): NativeInt;
+    function Contains(const AValue: T): Boolean;
+    function Count: NativeInt;
+    function IsEmpty: Boolean;
+    function ToArray: TArray<T>;
+{$IF Defined(CPU64BITS)}
+    function BinarySearch(const AItem: T; out FoundIndex: Integer): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>; AIndex, Count: Integer): Boolean; overload;
+{$ENDIF}
     property Capacity: NativeInt read GetCapacity write SetCapacity;
-    property Count: NativeInt read GetCount write SetCount;
-    property IsEmpty: Boolean read GetIsEmpty;
-    property Items[Index: NativeInt]: T read GetItem write SetItem; default;
+    property AItems[AIndex: NativeInt]: T read GetItem write SetItem; default;
     property List: TArray<T> read GetList;
     property Comparer: IComparer<T> read GetComparer;
     property OnNotify: TCollectionNotifyEvent<T> read GetOnNotify write SetOnNotify;
@@ -162,78 +159,76 @@ type
     FOnNotify: TCollectionNotifyEvent<T>;
     function GetEnumerable: IFluentEnumerable<T>;
     function GetCapacity: NativeInt;
-    procedure SetCapacity(Value: NativeInt);
-    function GetCount: NativeInt;
-    procedure SetCount(Value: NativeInt);
-    function GetIsEmpty: Boolean;
-    function GetItem(Index: NativeInt): T;
-    procedure SetItem(Index: NativeInt; const Value: T);
+    procedure SetCapacity(const AValue: NativeInt);
+    function GetItem(AIndex: NativeInt): T;
+    procedure SetItem(AIndex: NativeInt; const AValue: T);
     function GetList: TArray<T>;
     function GetComparer: IComparer<T>;
-    procedure SetOnNotify(const Value: TCollectionNotifyEvent<T>);
+    procedure SetOnNotify(const AValue: TCollectionNotifyEvent<T>);
     function GetOnNotify: TCollectionNotifyEvent<T>;
-  public type
-    TEmptyFunc = reference to function (const L, R: T): Boolean;
+  public
+    type
+      TEmptyFunc = reference to function (const L, R: T): Boolean;
   public
     class function From(const AList: TList<T>): IFluentEnumerable<T>; overload; static;
     class function From(const AArray: TArray<T>): IFluentEnumerable<T>; overload; static;
-    class procedure Error(const Msg: string; Data: NativeInt); overload; virtual;
+    class procedure Error(const AMsg: string; Data: NativeInt); overload; virtual;
 {$IFNDEF NEXTGEN}
-    class procedure Error(Msg: PResStringRec; Data: NativeInt); overload;
+    class procedure Error(const AMsg: PResStringRec; const Data: NativeInt); overload;
 {$ENDIF}
     constructor Create; overload;
     constructor Create(const AComparer: IComparer<T>); overload;
-    constructor Create(const Collection: TEnumerable<T>); overload;
-    constructor Create(const Collection: IEnumerable<T>); overload;
-    constructor Create(const Values: array of T); overload;
+    constructor Create(const ACollection: TEnumerable<T>); overload;
+    constructor Create(const ACollection: IEnumerable<T>); overload;
+    constructor Create(const AValues: array of T); overload;
     constructor Create(const AList: TList<T>; AOwnsList: Boolean = False); overload;
     destructor Destroy; override;
-    procedure AddRange(const Values: array of T); overload;
-    procedure AddRange(const Collection: IEnumerable<T>); overload;
-    procedure AddRange(const Collection: TEnumerable<T>); overload;
-    procedure Insert(Index: NativeInt; const Value: T);
-    procedure InsertRange(Index: NativeInt; const Values: array of T; Count: NativeInt); overload;
-    procedure InsertRange(Index: NativeInt; const Values: array of T); overload;
-    procedure InsertRange(Index: NativeInt; const Collection: IEnumerable<T>); overload;
-    procedure InsertRange(Index: NativeInt; const Collection: TEnumerable<T>); overload;
+    procedure AddRange(const AValues: array of T); overload;
+    procedure AddRange(const ACollection: IEnumerable<T>); overload;
+    procedure AddRange(const ACollection: TEnumerable<T>); overload;
+    procedure Insert(const AIndex: NativeInt; const AValue: T);
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T; ACount: NativeInt); overload;
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: TEnumerable<T>); overload;
     procedure Pack;
-    procedure Delete(Index: NativeInt);
-    procedure DeleteRange(AIndex, ACount: NativeInt);
-    procedure Exchange(Index1, Index2: NativeInt);
-    procedure Move(CurIndex, NewIndex: NativeInt);
+    procedure Delete(const AIndex: NativeInt);
+    procedure DeleteRange(const AIndex, ACount: NativeInt);
+    procedure Exchange(const AIndex1, AIndex2: NativeInt);
+    procedure Move(const ACurIndex, ANewIndex: NativeInt);
     procedure Clear;
     procedure Reverse;
     procedure Sort; overload;
-    procedure Sort(const AComparer: IComparer<T>); overload;
-    procedure Sort(const AComparer: IComparer<T>; Index, Count: NativeInt); overload;
+    procedure Sort(const Comparer: IComparer<T>); overload;
+    procedure Sort(const Comparer: IComparer<T>; AIndex, Count: NativeInt); overload;
     procedure TrimExcess;
-    function Add(const Value: T): NativeInt;
-    function Remove(const Value: T): NativeInt;
-    function RemoveItem(const Value: T; Direction: TDirection): NativeInt;
-    function ExtractItem(const Value: T; Direction: TDirection): T;
-    function Extract(const Value: T): T;
-    function ExtractAt(Index: NativeInt): T;
+    function Add(const AValue: T): NativeInt;
+    function Remove(const AValue: T): NativeInt;
+    function RemoveItem(const AValue: T; Direction: TDirection): NativeInt;
+    function ExtractItem(const AValue: T; Direction: TDirection): T;
+    function Extract(const AValue: T): T;
+    function ExtractAt(AIndex: NativeInt): T;
     function First: T;
     function Last: T;
     function Expand: IFluentList<T>;
-    function Contains(const Value: T): Boolean;
-    function IndexOf(const Value: T): NativeInt;
-    function IndexOfItem(const Value: T; Direction: TDirection): NativeInt;
-    function LastIndexOf(const Value: T): NativeInt;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; Index, Count: NativeInt): Boolean; overload;
+    function Contains(const AValue: T): Boolean;
+    function IndexOf(const AValue: T): NativeInt;
+    function IndexOfItem(const AValue: T; Direction: TDirection): NativeInt;
+    function LastIndexOf(const AValue: T): NativeInt;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; AIndex, Count: NativeInt): Boolean; overload;
 {$IF Defined(CPU64BITS)}
-    function BinarySearch(const Item: T; out FoundIndex: Integer): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean; overload;
-    function BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>; Index, Count: Integer): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: Integer): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>; AIndex, Count: Integer): Boolean; overload;
 {$ENDIF}
     function ToArray: TArray<T>;
     function AsEnumerable: IFluentEnumerable<T>;
     property Capacity: NativeInt read GetCapacity write SetCapacity;
-    property Count: NativeInt read GetCount write SetCount;
-    property IsEmpty: Boolean read GetIsEmpty;
-    property Items[Index: NativeInt]: T read GetItem write SetItem; default;
+    function Count: NativeInt;
+    function IsEmpty: Boolean;
+    property Items[AIndex: NativeInt]: T read GetItem write SetItem; default;
     property List: TArray<T> read GetList;
     property Comparer: IComparer<T> read GetComparer;
     property OnNotify: TCollectionNotifyEvent<T> read GetOnNotify write SetOnNotify;
@@ -241,14 +236,12 @@ type
 
   IFluentDictionary<K, V> = interface(IInterface)
     ['{CF242859-D62D-4277-91B3-D4E389793E7C}']
-    procedure SetCapacity(Value: NativeInt);
-    procedure SetItem(const Key: K; const Value: V);
-    procedure SetOnKeyNotify(const Value: TCollectionNotifyEvent<K>);
-    procedure SetOnValueNotify(const Value: TCollectionNotifyEvent<V>);
+    procedure SetCapacity(const AValue: NativeInt);
+    procedure SetItem(const AKey: K; const AValue: V);
+    procedure SetOnKeyNotify(const AValue: TCollectionNotifyEvent<K>);
+    procedure SetOnValueNotify(const AValue: TCollectionNotifyEvent<V>);
     function GetCapacity: NativeInt;
-    function GetItem(const Key: K): V;
-    function GetCount: NativeInt;
-    function GetIsEmpty: Boolean;
+    function GetItem(const AKey: K): V;
     function GetGrowThreshold: NativeInt;
     function GetCollisions: NativeInt;
     function GetKeys: TDictionary<K, V>.TKeyCollection;
@@ -257,28 +250,28 @@ type
     function GetOnKeyNotify: TCollectionNotifyEvent<K>;
     function GetOnValueNotify: TCollectionNotifyEvent<V>;
     //
-    procedure Add(const Key: K; const Value: V);
-    procedure AddRange(const ADictionary: TDictionary<K, V>); overload;
-    procedure AddRange(const AItems: TEnumerable<TPair<K, V>>); overload;
-    procedure Remove(const Key: K);
     procedure Clear;
+    procedure Add(const AKey: K; const AValue: V);
+    procedure Remove(const AKey: K);
     procedure TrimExcess;
-    procedure AddOrSetValue(const Key: K; const Value: V);
-    function ExtractPair(const Key: K): TPair<K, V>;
-    function TryGetValue(const Key: K; var Value: V): Boolean;
-    function TryAdd(const Key: K; const Value: V): Boolean;
-    function ContainsKey(const Key: K): Boolean;
-    function ContainsValue(const Value: V): Boolean;
-    function ToArray: TArray<TPair<K, V>>;
+    procedure AddRange(const Dictionary: TDictionary<K, V>); overload;
+    procedure AddRange(const AItems: TEnumerable<TPair<K, V>>); overload;
+    procedure AddOrSetValue(const AKey: K; const AValue: V);
+    function ExtractPair(const AKey: K): TPair<K, V>;
+    function TryGetValue(const AKey: K; var AValue: V): Boolean;
+    function TryAdd(const AKey: K; const AValue: V): Boolean;
     function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
-    property Count: NativeInt read GetCount;
-    property IsEmpty: Boolean read GetIsEmpty;
+    function ContainsKey(const AKey: K): Boolean;
+    function ContainsValue(const AValue: V): Boolean;
+    function Count: NativeInt;
+    function IsEmpty: Boolean;
+    function ToArray: TArray<TPair<K, V>>;
     property GrowThreshold: NativeInt read GetGrowThreshold;
     property Collisions: NativeInt read GetCollisions;
     property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
-    property Values: TDictionary<K, V>.TValueCollection read GetValues;
+    property AValues: TDictionary<K, V>.TValueCollection read GetValues;
     property Comparer: IEqualityComparer<K> read GetComparer;
-    property Items[const Key: K]: V read GetItem write SetItem; default;
+    property Items[const AKey: K]: V read GetItem write SetItem; default;
     property OnKeyNotify: TCollectionNotifyEvent<K> read GetOnKeyNotify write SetOnKeyNotify;
     property OnValueNotify: TCollectionNotifyEvent<V> read GetOnValueNotify write SetOnValueNotify;
   end;
@@ -291,9 +284,7 @@ type
     FOnValueNotify: TCollectionNotifyEvent<V>;
     function GetEnumerable: IFluentEnumerable<TPair<K, V>>;
     function GetCapacity: NativeInt;
-    function GetItem(const Key: K): V;
-    function GetCount: NativeInt;
-    function GetIsEmpty: Boolean;
+    function GetItem(const AKey: K): V;
     function GetGrowThreshold: NativeInt;
     function GetCollisions: NativeInt;
     function GetKeys: TDictionary<K, V>.TKeyCollection;
@@ -301,47 +292,47 @@ type
     function GetComparer: IEqualityComparer<K>;
     function GetOnKeyNotify: TCollectionNotifyEvent<K>;
     function GetOnValueNotify: TCollectionNotifyEvent<V>;
-    procedure SetCapacity(Value: NativeInt);
-    procedure SetItem(const Key: K; const Value: V);
-    procedure SetOnKeyNotify(const Value: TCollectionNotifyEvent<K>);
-    procedure SetOnValueNotify(const Value: TCollectionNotifyEvent<V>);
+    procedure SetCapacity(const AValue: NativeInt);
+    procedure SetItem(const AKey: K; const AValue: V);
+    procedure SetOnKeyNotify(const AValue: TCollectionNotifyEvent<K>);
+    procedure SetOnValueNotify(const AValue: TCollectionNotifyEvent<V>);
   public
     class function From(const ADict: TDictionary<K, V>): IFluentEnumerable<TPair<K, V>>; overload; static;
     class function From(const AArray: TArray<TPair<K, V>>): IFluentEnumerable<TPair<K, V>>; overload; static;
     constructor Create; overload;
-    constructor Create(ACapacity: NativeInt); overload;
-    constructor Create(const AComparer: IEqualityComparer<K>); overload;
-    constructor Create(ACapacity: NativeInt; const AComparer: IEqualityComparer<K>); overload;
-    constructor Create(const Collection: TEnumerable<TPair<K, V>>); overload;
-    constructor Create(const Collection: TEnumerable<TPair<K, V>>; const AComparer: IEqualityComparer<K>); overload;
+    constructor Create(const Capacity: NativeInt); overload;
+    constructor Create(const Comparer: IEqualityComparer<K>); overload;
+    constructor Create(const Capacity: NativeInt; const Comparer: IEqualityComparer<K>); overload;
+    constructor Create(const ACollection: TEnumerable<TPair<K, V>>); overload;
+    constructor Create(const ACollection: TEnumerable<TPair<K, V>>; const Comparer: IEqualityComparer<K>); overload;
     constructor Create(const AItems: array of TPair<K, V>); overload;
-    constructor Create(const AItems: array of TPair<K, V>; const AComparer: IEqualityComparer<K>); overload;
-    constructor Create(const ADict: TDictionary<K, V>; AOwnsDict: Boolean = False); overload;
+    constructor Create(const AItems: array of TPair<K, V>; const Comparer: IEqualityComparer<K>); overload;
+    constructor Create(const ADict: TDictionary<K, V>; const AOwnsDict: Boolean = False); overload;
     destructor Destroy; override;
-    procedure Add(const Key: K; const Value: V);
-    procedure AddRange(const ADictionary: TDictionary<K, V>); overload;
-    procedure AddRange(const AItems: TEnumerable<TPair<K, V>>); overload;
-    procedure Remove(const Key: K);
     procedure Clear;
     procedure TrimExcess;
-    procedure AddOrSetValue(const Key: K; const Value: V);
-    function ExtractPair(const Key: K): TPair<K, V>;
-    function TryGetValue(const Key: K; var Value: V): Boolean;
-    function TryAdd(const Key: K; const Value: V): Boolean;
-    function ContainsKey(const Key: K): Boolean;
-    function ContainsValue(const Value: V): Boolean;
+    procedure Add(const AKey: K; const AValue: V);
+    procedure AddRange(const Dictionary: TDictionary<K, V>); overload;
+    procedure AddRange(const AItems: TEnumerable<TPair<K, V>>); overload;
+    procedure Remove(const AKey: K);
+    procedure AddOrSetValue(const AKey: K; const AValue: V);
+    function ExtractPair(const AKey: K): TPair<K, V>;
+    function TryGetValue(const AKey: K; var AValue: V): Boolean;
+    function TryAdd(const AKey: K; const AValue: V): Boolean;
+    function ContainsKey(const AKey: K): Boolean;
+    function ContainsValue(const AValue: V): Boolean;
     function ToArray: TArray<TPair<K, V>>;
     function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
+    function Count: NativeInt;
+    function IsEmpty: Boolean;
+    //
     property Capacity: NativeInt read GetCapacity write SetCapacity;
-    property Items[const Key: K]: V read GetItem write SetItem; default;
-    property Count: NativeInt read GetCount;
-    property IsEmpty: Boolean read GetIsEmpty;
     property GrowThreshold: NativeInt read GetGrowThreshold;
     property Collisions: NativeInt read GetCollisions;
     property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
     property Values: TDictionary<K, V>.TValueCollection read GetValues;
     property Comparer: IEqualityComparer<K> read GetComparer;
-    property Items[const Key: K]: V read GetItem write SetItem; default;
+    property Items[const AKey: K]: V read GetItem write SetItem; default;
     property OnKeyNotify: TCollectionNotifyEvent<K> read GetOnKeyNotify write SetOnKeyNotify;
     property OnValueNotify: TCollectionNotifyEvent<V> read GetOnValueNotify write SetOnValueNotify;
   end;
@@ -400,50 +391,50 @@ begin
   Result := IFluentEnumerable<T>.Create(TNonGenericArrayAdapter<T>.Create(AArray));
 end;
 
-class procedure TFluentArray.Sort<T>(var Values: array of T);
+class procedure TFluentArray.Sort<T>(var AValues: array of T);
 begin
-  TArray.Sort<T>(Values);
+  TArray.Sort<T>(AValues);
 end;
 
-class procedure TFluentArray.Sort<T>(var Values: array of T; const Comparer: IComparer<T>);
+class procedure TFluentArray.Sort<T>(var AValues: array of T; const Comparer: IComparer<T>);
 begin
-  TArray.Sort<T>(Values, Comparer);
+  TArray.Sort<T>(AValues, Comparer);
 end;
 
-class procedure TFluentArray.Sort<T>(var Values: array of T; const Comparer: IComparer<T>; Index, Count: NativeInt);
+class procedure TFluentArray.Sort<T>(var AValues: array of T; const Comparer: IComparer<T>; AIndex, Count: NativeInt);
 begin
-  TArray.Sort<T>(Values, Comparer, Index, Count);
+  TArray.Sort<T>(AValues, Comparer, AIndex, Count);
 end;
 
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>; Index, Count: NativeInt): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>; AIndex, Count: NativeInt): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex, Comparer, Index, Count);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex, Comparer, AIndex, Count);
 end;
 
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt; const Comparer: IComparer<T>): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex, Comparer);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex, Comparer);
 end;
 
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: NativeInt): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex);
 end;
 
 {$IF Defined(CPU64BITS)}
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer; const Comparer: IComparer<T>; Index, Count: Integer): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer; const Comparer: IComparer<T>; AIndex, Count: Integer): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex, Comparer, Index, Count);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex, Comparer, AIndex, Count);
 end;
 
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer; const Comparer: IComparer<T>): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer; const Comparer: IComparer<T>): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex, Comparer);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex, Comparer);
 end;
 
-class function TFluentArray.BinarySearch<T>(const Values: array of T; const Item: T; out FoundIndex: Integer): Boolean;
+class function TFluentArray.BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: Integer): Boolean;
 begin
-  Result := TArray.BinarySearch<T>(Values, Item, FoundIndex);
+  Result := TArray.BinarySearch<T>(AValues, AItem, FoundIndex);
 end;
 {$ENDIF CPU64BITS}
 
@@ -462,64 +453,64 @@ begin
   Result := TArray.Concat<T>(Args);
 end;
 
-class function TFluentArray.IndexOf<T>(const Values: array of T; const Item: T): NativeInt;
+class function TFluentArray.IndexOf<T>(const AValues: array of T; const AItem: T): NativeInt;
 begin
-  Result := TArray.IndexOf<T>(Values, Item);
+  Result := TArray.IndexOf<T>(AValues, AItem);
 end;
 
-class function TFluentArray.IndexOf<T>(const Values: array of T; const Item: T; Index: NativeInt): NativeInt;
+class function TFluentArray.IndexOf<T>(const AValues: array of T; const AItem: T; AIndex: NativeInt): NativeInt;
 begin
-  Result := TArray.IndexOf<T>(Values, Item, Index);
+  Result := TArray.IndexOf<T>(AValues, AItem, AIndex);
 end;
 
-class function TFluentArray.IndexOf<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>; Index, Count: NativeInt): NativeInt;
+class function TFluentArray.IndexOf<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>; AIndex, Count: NativeInt): NativeInt;
 begin
-  Result := TArray.IndexOf<T>(Values, Item, Comparer, Index, Count);
+  Result := TArray.IndexOf<T>(AValues, AItem, Comparer, AIndex, Count);
 end;
 
-class function TFluentArray.LastIndexOf<T>(const Values: array of T; const Item: T): NativeInt;
+class function TFluentArray.LastIndexOf<T>(const AValues: array of T; const AItem: T): NativeInt;
 begin
-  Result := TArray.LastIndexOf<T>(Values, Item);
+  Result := TArray.LastIndexOf<T>(AValues, AItem);
 end;
 
-class function TFluentArray.LastIndexOf<T>(const Values: array of T; const Item: T; Index: NativeInt): NativeInt;
+class function TFluentArray.LastIndexOf<T>(const AValues: array of T; const AItem: T; AIndex: NativeInt): NativeInt;
 begin
-  Result := TArray.LastIndexOf<T>(Values, Item, Index);
+  Result := TArray.LastIndexOf<T>(AValues, AItem, AIndex);
 end;
 
-class function TFluentArray.LastIndexOf<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>; Index, Count: NativeInt): NativeInt;
+class function TFluentArray.LastIndexOf<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>; AIndex, Count: NativeInt): NativeInt;
 begin
-  Result := TArray.LastIndexOf<T>(Values, Item, Comparer, Index, Count);
+  Result := TArray.LastIndexOf<T>(AValues, AItem, Comparer, AIndex, Count);
 end;
 
-class function TFluentArray.Contains<T>(const Values: array of T; const Item: T): Boolean;
+class function TFluentArray.Contains<T>(const AValues: array of T; const AItem: T): Boolean;
 begin
-  Result := TArray.Contains<T>(Values, Item);
+  Result := TArray.Contains<T>(AValues, AItem);
 end;
 
-class function TFluentArray.Contains<T>(const Values: array of T; const Item: T; const Comparer: IComparer<T>): Boolean;
+class function TFluentArray.Contains<T>(const AValues: array of T; const AItem: T; const Comparer: IComparer<T>): Boolean;
 begin
-  Result := TArray.Contains<T>(Values, Item, Comparer);
+  Result := TArray.Contains<T>(AValues, AItem, Comparer);
 end;
 
-class procedure TFluentArray.FreeValues<T>(const Values: array of T);
+class procedure TFluentArray.FreeValues<T>(const AValues: array of T);
 begin
-  TArray.FreeValues<T>(Values);
+  TArray.FreeValues<T>(AValues);
 end;
 
-class procedure TFluentArray.FreeValues<T>(var Values: TArray<T>);
+class procedure TFluentArray.FreeValues<T>(var AValues: TArray<T>);
 begin
-  TArray.FreeValues<T>(Values);
+  TArray.FreeValues<T>(AValues);
 end;
 
-class function TFluentArray.ToString<T>(const Values: array of T; const AFormatSettings: TFormatSettings; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string;
+class function TFluentArray.ToString<T>(const AValues: array of T; const AFormatSettings: TFormatSettings; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string;
 begin
-  Result := TArray.ToString<T>(Values, AFormatSettings, ASeparator, ADelim1, ADelim2);
+  Result := TArray.ToString<T>(AValues, AFormatSettings, ASeparator, ADelim1, ADelim2);
 end;
 
-class function TFluentArray.ToString<T>(const Values: array of T; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string;
+class function TFluentArray.ToString<T>(const AValues: array of T; const ASeparator: string = ','; const ADelim1: string = ''; const ADelim2: string = ''): string;
 begin
-  Result := TArray.ToString<T>(Values, ASeparator, ADelim1, ADelim2);
+  Result := TArray.ToString<T>(AValues, ASeparator, ADelim1, ADelim2);
 end;
 
 { TFluentList<T> }
@@ -536,23 +527,23 @@ begin
   FOwnsList := True;
 end;
 
-constructor TFluentList<T>.Create(const Collection: TEnumerable<T>);
+constructor TFluentList<T>.Create(const ACollection: TEnumerable<T>);
 begin
-  FList := TList<T>.Create(Collection);
+  FList := TList<T>.Create(ACollection);
   FOwnsList := True;
 end;
 
-constructor TFluentList<T>.Create(const Collection: IEnumerable<T>);
+constructor TFluentList<T>.Create(const ACollection: IEnumerable<T>);
 begin
-  FList := TList<T>.Create(Collection);
+  FList := TList<T>.Create(ACollection);
   FOwnsList := True;
 end;
 
-constructor TFluentList<T>.Create(const Values: array of T);
+constructor TFluentList<T>.Create(const AValues: array of T);
 begin
   FList := TList<T>.Create;
   FOwnsList := True;
-  AddRange(Values);
+  AddRange(AValues);
 end;
 
 constructor TFluentList<T>.Create(const AList: TList<T>; AOwnsList: Boolean);
@@ -570,61 +561,66 @@ begin
   inherited;
 end;
 
-class procedure TFluentList<T>.Error(const Msg: string; Data: NativeInt);
+class procedure TFluentList<T>.Error(const AMsg: string; Data: NativeInt);
 begin
-  TList<T>.Error(Msg, Data);
+  TList<T>.Error(AMsg, Data);
 end;
 
 {$IFNDEF NEXTGEN}
-class procedure TFluentList<T>.Error(Msg: PResStringRec; Data: NativeInt);
+class procedure TFluentList<T>.Error(const AMsg: PResStringRec; const Data: NativeInt);
 begin
-  TList<T>.Error(Msg, Data);
+  TList<T>.Error(AMsg, Data);
 end;
 {$ENDIF}
 
-function TFluentList<T>.Add(const Value: T): NativeInt;
+function TFluentList<T>.Add(const AValue: T): NativeInt;
 begin
-  Result := FList.Add(Value);
+  Result := FList.Add(AValue);
 end;
 
-procedure TFluentList<T>.AddRange(const Values: array of T);
+procedure TFluentList<T>.AddRange(const AValues: array of T);
 begin
-  FList.AddRange(Values);
+  FList.AddRange(AValues);
 end;
 
-procedure TFluentList<T>.AddRange(const Collection: IEnumerable<T>);
+procedure TFluentList<T>.AddRange(const ACollection: IEnumerable<T>);
 begin
-  FList.AddRange(Collection);
+  FList.AddRange(ACollection);
 end;
 
-procedure TFluentList<T>.AddRange(const Collection: TEnumerable<T>);
+procedure TFluentList<T>.AddRange(const ACollection: TEnumerable<T>);
 begin
-  FList.AddRange(Collection);
+  FList.AddRange(ACollection);
 end;
 
-procedure TFluentList<T>.Insert(Index: NativeInt; const Value: T);
+procedure TFluentList<T>.Insert(const AIndex: NativeInt; const AValue: T);
 begin
-  FList.Insert(Index, Value);
+  FList.Insert(AIndex, AValue);
 end;
 
-procedure TFluentList<T>.InsertRange(Index: NativeInt; const Values: array of T; Count: NativeInt);
+procedure TFluentList<T>.InsertRange(const AIndex: NativeInt; const AValues: array of T; ACount: NativeInt);
 begin
-  FList.InsertRange(Index, Values, Count);
+  FList.InsertRange(AIndex, AValues, ACount);
 end;
 
-procedure TFluentList<T>.InsertRange(Index: NativeInt; const Values: array of T);
+procedure TFluentList<T>.InsertRange(const AIndex: NativeInt; const AValues: array of T);
 begin
-  FList.InsertRange(Index, Values);
+  FList.InsertRange(AIndex, AValues);
 end;
 
-procedure TFluentList<T>.InsertRange(Index: NativeInt; const Collection: IEnumerable<T>);
+procedure TFluentList<T>.InsertRange(const AIndex: NativeInt; const ACollection: IEnumerable<T>);
 begin
-  FList.InsertRange(Index, Collection);
+  FList.InsertRange(AIndex, ACollection);
 end;
 
-procedure TFluentList<T>.InsertRange(Index: NativeInt; const Collection: TEnumerable<T>);
+procedure TFluentList<T>.InsertRange(const AIndex: NativeInt; const ACollection: TEnumerable<T>);
 begin
-  FList.InsertRange(Index, Collection);
+  FList.InsertRange(AIndex, ACollection);
+end;
+
+function TFluentList<T>.IsEmpty: Boolean;
+begin
+  Result := FList.IsEmpty;
 end;
 
 procedure TFluentList<T>.Pack;
@@ -632,49 +628,49 @@ begin
   FList.Pack;
 end;
 
-function TFluentList<T>.Remove(const Value: T): NativeInt;
+function TFluentList<T>.Remove(const AValue: T): NativeInt;
 begin
-  Result := FList.Remove(Value);
+  Result := FList.Remove(AValue);
 end;
 
-function TFluentList<T>.RemoveItem(const Value: T; Direction: TDirection): NativeInt;
+function TFluentList<T>.RemoveItem(const AValue: T; Direction: TDirection): NativeInt;
 begin
-  Result := FList.RemoveItem(Value, Direction);
+  Result := FList.RemoveItem(AValue, Direction);
 end;
 
-procedure TFluentList<T>.Delete(Index: NativeInt);
+procedure TFluentList<T>.Delete(const AIndex: NativeInt);
 begin
-  FList.Delete(Index);
+  FList.Delete(AIndex);
 end;
 
-procedure TFluentList<T>.DeleteRange(AIndex, ACount: NativeInt);
+procedure TFluentList<T>.DeleteRange(const AIndex, ACount: NativeInt);
 begin
   FList.DeleteRange(AIndex, ACount);
 end;
 
-function TFluentList<T>.ExtractItem(const Value: T; Direction: TDirection): T;
+function TFluentList<T>.ExtractItem(const AValue: T; Direction: TDirection): T;
 begin
-  Result := FList.ExtractItem(Value, Direction);
+  Result := FList.ExtractItem(AValue, Direction);
 end;
 
-function TFluentList<T>.Extract(const Value: T): T;
+function TFluentList<T>.Extract(const AValue: T): T;
 begin
-  Result := FList.Extract(Value);
+  Result := FList.Extract(AValue);
 end;
 
-function TFluentList<T>.ExtractAt(Index: NativeInt): T;
+function TFluentList<T>.ExtractAt(AIndex: NativeInt): T;
 begin
-  Result := FList.ExtractAt(Index);
+  Result := FList.ExtractAt(AIndex);
 end;
 
-procedure TFluentList<T>.Exchange(Index1, Index2: NativeInt);
+procedure TFluentList<T>.Exchange(const AIndex1, AIndex2: NativeInt);
 begin
-  FList.Exchange(Index1, Index2);
+  FList.Exchange(AIndex1, AIndex2);
 end;
 
-procedure TFluentList<T>.Move(CurIndex, NewIndex: NativeInt);
+procedure TFluentList<T>.Move(const ACurIndex, ANewIndex: NativeInt);
 begin
-  FList.Move(CurIndex, NewIndex);
+  FList.Move(ACurIndex, ANewIndex);
 end;
 
 function TFluentList<T>.First: T;
@@ -698,24 +694,29 @@ begin
   Result := Self;
 end;
 
-function TFluentList<T>.Contains(const Value: T): Boolean;
+function TFluentList<T>.Contains(const AValue: T): Boolean;
 begin
-  Result := FList.Contains(Value);
+  Result := FList.Contains(AValue);
 end;
 
-function TFluentList<T>.IndexOf(const Value: T): NativeInt;
+function TFluentList<T>.Count: NativeInt;
 begin
-  Result := FList.IndexOf(Value);
+  Result := FList.Count;
 end;
 
-function TFluentList<T>.IndexOfItem(const Value: T; Direction: TDirection): NativeInt;
+function TFluentList<T>.IndexOf(const AValue: T): NativeInt;
 begin
-  Result := FList.IndexOfItem(Value, Direction);
+  Result := FList.IndexOf(AValue);
 end;
 
-function TFluentList<T>.LastIndexOf(const Value: T): NativeInt;
+function TFluentList<T>.IndexOfItem(const AValue: T; Direction: TDirection): NativeInt;
 begin
-  Result := FList.LastIndexOf(Value);
+  Result := FList.IndexOfItem(AValue, Direction);
+end;
+
+function TFluentList<T>.LastIndexOf(const AValue: T): NativeInt;
+begin
+  Result := FList.LastIndexOf(AValue);
 end;
 
 procedure TFluentList<T>.Reverse;
@@ -728,45 +729,45 @@ begin
   FList.Sort;
 end;
 
-procedure TFluentList<T>.Sort(const AComparer: IComparer<T>);
+procedure TFluentList<T>.Sort(const Comparer: IComparer<T>);
 begin
-  FList.Sort(AComparer);
+  FList.Sort(Comparer);
 end;
 
-procedure TFluentList<T>.Sort(const AComparer: IComparer<T>; Index, Count: NativeInt);
+procedure TFluentList<T>.Sort(const Comparer: IComparer<T>; AIndex, Count: NativeInt);
 begin
-  FList.Sort(AComparer, Index, Count);
+  FList.Sort(Comparer, AIndex, Count);
 end;
 
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: NativeInt): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: NativeInt): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex);
+  Result := FList.BinarySearch(AItem, FoundIndex);
 end;
 
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex, AComparer);
+  Result := FList.BinarySearch(AItem, FoundIndex, AComparer);
 end;
 
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; Index, Count: NativeInt): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; AIndex, Count: NativeInt): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex, AComparer, Index, Count);
+  Result := FList.BinarySearch(AItem, FoundIndex, AComparer, AIndex, Count);
 end;
 
 {$IF Defined(CPU64BITS)}
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: Integer): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: Integer): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex);
+  Result := FList.BinarySearch(AItem, FoundIndex);
 end;
 
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex, AComparer);
+  Result := FList.BinarySearch(AItem, FoundIndex, AComparer);
 end;
 
-function TFluentList<T>.BinarySearch(const Item: T; out FoundIndex: Integer; const AComparer: IComparer<T>; Index, Count: Integer): Boolean;
+function TFluentList<T>.BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>; AIndex, Count: Integer): Boolean;
 begin
-  Result := FList.BinarySearch(Item, FoundIndex, AComparer, Index, Count);
+  Result := FList.BinarySearch(AItem, FoundIndex, AComparer, AIndex, Count);
 end;
 {$ENDIF}
 
@@ -814,34 +815,19 @@ begin
   Result := FList.Capacity;
 end;
 
-procedure TFluentList<T>.SetCapacity(Value: NativeInt);
+procedure TFluentList<T>.SetCapacity(const AValue: NativeInt);
 begin
-  FList.Capacity := Value;
+  FList.Capacity := AValue;
 end;
 
-function TFluentList<T>.GetCount: NativeInt;
+function TFluentList<T>.GetItem(AIndex: NativeInt): T;
 begin
-  Result := FList.Count;
+  Result := FList.Items[AIndex];
 end;
 
-procedure TFluentList<T>.SetCount(Value: NativeInt);
+procedure TFluentList<T>.SetItem(AIndex: NativeInt; const AValue: T);
 begin
-  FList.Count := Value;
-end;
-
-function TFluentList<T>.GetIsEmpty: Boolean;
-begin
-  Result := FList.IsEmpty;
-end;
-
-function TFluentList<T>.GetItem(Index: NativeInt): T;
-begin
-  Result := FList.Items[Index];
-end;
-
-procedure TFluentList<T>.SetItem(Index: NativeInt; const Value: T);
-begin
-  FList.Items[Index] := Value;
+  FList.Items[AIndex] := AValue;
 end;
 
 function TFluentList<T>.GetList: TArray<T>;
@@ -859,9 +845,9 @@ begin
   Result := FList.Comparer;
 end;
 
-procedure TFluentList<T>.SetOnNotify(const Value: TCollectionNotifyEvent<T>);
+procedure TFluentList<T>.SetOnNotify(const AValue: TCollectionNotifyEvent<T>);
 begin
-  FList.OnNotify := Value;
+  FList.OnNotify := AValue;
 end;
 
 { TFluentDictionary<K, V> }
@@ -872,33 +858,33 @@ begin
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(ACapacity: NativeInt);
+constructor TFluentDictionary<K, V>.Create(const Capacity: NativeInt);
 begin
-  FDict := TDictionary<K, V>.Create(ACapacity);
+  FDict := TDictionary<K, V>.Create(Capacity);
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const AComparer: IEqualityComparer<K>);
+constructor TFluentDictionary<K, V>.Create(const Comparer: IEqualityComparer<K>);
 begin
-  FDict := TDictionary<K, V>.Create(AComparer);
+  FDict := TDictionary<K, V>.Create(Comparer);
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(ACapacity: NativeInt; const AComparer: IEqualityComparer<K>);
+constructor TFluentDictionary<K, V>.Create(const Capacity: NativeInt; const Comparer: IEqualityComparer<K>);
 begin
-  FDict := TDictionary<K, V>.Create(ACapacity, AComparer);
+  FDict := TDictionary<K, V>.Create(Capacity, Comparer);
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const Collection: TEnumerable<TPair<K, V>>);
+constructor TFluentDictionary<K, V>.Create(const ACollection: TEnumerable<TPair<K, V>>);
 begin
-  FDict := TDictionary<K, V>.Create(Collection);
+  FDict := TDictionary<K, V>.Create(ACollection);
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const Collection: TEnumerable<TPair<K, V>>; const AComparer: IEqualityComparer<K>);
+constructor TFluentDictionary<K, V>.Create(const ACollection: TEnumerable<TPair<K, V>>; const Comparer: IEqualityComparer<K>);
 begin
-  FDict := TDictionary<K, V>.Create(Collection, AComparer);
+  FDict := TDictionary<K, V>.Create(ACollection, Comparer);
   FOwnsDict := True;
 end;
 
@@ -908,13 +894,14 @@ begin
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const AItems: array of TPair<K, V>; const AComparer: IEqualityComparer<K>);
+constructor TFluentDictionary<K, V>.Create(const AItems: array of TPair<K, V>; const Comparer: IEqualityComparer<K>);
 begin
-  FDict := TDictionary<K, V>.Create(AItems, AComparer);
+  FDict := TDictionary<K, V>.Create(AItems, Comparer);
   FOwnsDict := True;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const ADict: TDictionary<K, V>; AOwnsDict: Boolean);
+constructor TFluentDictionary<K, V>.Create(const ADict: TDictionary<K, V>;
+  const AOwnsDict: Boolean);
 begin
   if ADict = nil then
     raise EArgumentNilException.Create('ADict cannot be nil');
@@ -929,19 +916,19 @@ begin
   inherited;
 end;
 
-procedure TFluentDictionary<K, V>.Add(const Key: K; const Value: V);
+procedure TFluentDictionary<K, V>.Add(const AKey: K; const AValue: V);
 begin
-  FDict.Add(Key, Value);
+  FDict.Add(AKey, AValue);
 end;
 
-procedure TFluentDictionary<K, V>.Remove(const Key: K);
+procedure TFluentDictionary<K, V>.Remove(const AKey: K);
 begin
-  FDict.Remove(Key);
+  FDict.Remove(AKey);
 end;
 
-function TFluentDictionary<K, V>.ExtractPair(const Key: K): TPair<K, V>;
+function TFluentDictionary<K, V>.ExtractPair(const AKey: K): TPair<K, V>;
 begin
-  Result := FDict.ExtractPair(Key);
+  Result := FDict.ExtractPair(AKey);
 end;
 
 procedure TFluentDictionary<K, V>.Clear;
@@ -954,45 +941,45 @@ begin
   FDict.TrimExcess;
 end;
 
-function TFluentDictionary<K, V>.TryGetValue(const Key: K; var Value: V): Boolean;
+function TFluentDictionary<K, V>.TryGetValue(const AKey: K; var AValue: V): Boolean;
 begin
-  Result := FDict.TryGetValue(Key, Value);
+  Result := FDict.TryGetValue(AKey, AValue);
 end;
 
-procedure TFluentDictionary<K, V>.AddOrSetValue(const Key: K; const Value: V);
+procedure TFluentDictionary<K, V>.AddOrSetValue(const AKey: K; const AValue: V);
 begin
-  FDict.AddOrSetValue(Key, Value);
+  FDict.AddOrSetValue(AKey, AValue);
 end;
 
-procedure TFluentDictionary<K, V>.AddRange(const ADictionary: TDictionary<K, V>);
+procedure TFluentDictionary<K, V>.AddRange(const Dictionary: TDictionary<K, V>);
 var
-  Pair: TPair<K, V>;
+  LPair: TPair<K, V>;
 begin
-  for Pair in ADictionary do
-    Add(Pair.Key, Pair.Value);
+  for LPair in Dictionary do
+    Add(LPair.Key, LPair.Value);
 end;
 
 procedure TFluentDictionary<K, V>.AddRange(const AItems: TEnumerable<TPair<K, V>>);
 var
-  Pair: TPair<K, V>;
+  LPair: TPair<K, V>;
 begin
-  for Pair in AItems do
-    Add(Pair.Key, Pair.Value);
+  for LPair in AItems do
+    Add(LPair.Key, LPair.Value);
 end;
 
-function TFluentDictionary<K, V>.TryAdd(const Key: K; const Value: V): Boolean;
+function TFluentDictionary<K, V>.TryAdd(const AKey: K; const AValue: V): Boolean;
 begin
-  Result := FDict.TryAdd(Key, Value);
+  Result := FDict.TryAdd(AKey, AValue);
 end;
 
-function TFluentDictionary<K, V>.ContainsKey(const Key: K): Boolean;
+function TFluentDictionary<K, V>.ContainsKey(const AKey: K): Boolean;
 begin
-  Result := FDict.ContainsKey(Key);
+  Result := FDict.ContainsKey(AKey);
 end;
 
-function TFluentDictionary<K, V>.ContainsValue(const Value: V): Boolean;
+function TFluentDictionary<K, V>.ContainsValue(const AValue: V): Boolean;
 begin
-  Result := FDict.ContainsValue(Value);
+  Result := FDict.ContainsValue(AValue);
 end;
 
 function TFluentDictionary<K, V>.ToArray: TArray<TPair<K, V>>;
@@ -1016,18 +1003,13 @@ begin
         Result := (TComparer<K>.Default.Compare(Left.Key, Right.Key) = 0) and
                   (TComparer<V>.Default.Compare(Left.Value, Right.Value) = 0);
       end,
-      function(const Value: TPair<K, V>): Integer
+      function(const AValue: TPair<K, V>): Integer
       begin
-        Result := TEqualityComparer<K>.Default.GetHashCode(Value.Key) xor
-                  TEqualityComparer<V>.Default.GetHashCode(Value.Value);
+        Result := TEqualityComparer<K>.Default.GetHashCode(AValue.Key) xor
+                  TEqualityComparer<V>.Default.GetHashCode(AValue.Value);
       end)
   );
 end;
-
-//function TFluentDictionary<K, V>.GetEnumerable: IFluentEnumerable<TPair<K, V>>;
-//begin
-//  Result := IFluentEnumerable<TPair<K, V>>.Create(TDictionaryAdapter<K, V>.Create(FDict));
-//end;
 
 class function TFluentDictionary<K, V>.From(const ADict: TDictionary<K, V>): IFluentEnumerable<TPair<K, V>>;
 begin
@@ -1044,27 +1026,27 @@ begin
   Result := FDict.Capacity;
 end;
 
-procedure TFluentDictionary<K, V>.SetCapacity(Value: NativeInt);
+procedure TFluentDictionary<K, V>.SetCapacity(const AValue: NativeInt);
 begin
-  FDict.Capacity := Value;
+  FDict.Capacity := AValue;
 end;
 
-function TFluentDictionary<K, V>.GetItem(const Key: K): V;
+function TFluentDictionary<K, V>.GetItem(const AKey: K): V;
 begin
-  Result := FDict.Items[Key];
+  Result := FDict.Items[AKey];
 end;
 
-procedure TFluentDictionary<K, V>.SetItem(const Key: K; const Value: V);
+procedure TFluentDictionary<K, V>.SetItem(const AKey: K; const AValue: V);
 begin
-  FDict.Items[Key] := Value;
+  FDict.Items[AKey] := AValue;
 end;
 
-function TFluentDictionary<K, V>.GetCount: NativeInt;
+function TFluentDictionary<K, V>.Count: NativeInt;
 begin
   Result := FDict.Count;
 end;
 
-function TFluentDictionary<K, V>.GetIsEmpty: Boolean;
+function TFluentDictionary<K, V>.IsEmpty: Boolean;
 begin
   Result := FDict.IsEmpty;
 end;
@@ -1104,14 +1086,14 @@ begin
   Result := FDict.Comparer;
 end;
 
-procedure TFluentDictionary<K, V>.SetOnKeyNotify(const Value: TCollectionNotifyEvent<K>);
+procedure TFluentDictionary<K, V>.SetOnKeyNotify(const AValue: TCollectionNotifyEvent<K>);
 begin
-  FDict.OnKeyNotify := Value;
+  FDict.OnKeyNotify := AValue;
 end;
 
-procedure TFluentDictionary<K, V>.SetOnValueNotify(const Value: TCollectionNotifyEvent<V>);
+procedure TFluentDictionary<K, V>.SetOnValueNotify(const AValue: TCollectionNotifyEvent<V>);
 begin
-  FDict.OnValueNotify := Value;
+  FDict.OnValueNotify := AValue;
 end;
 
 end.

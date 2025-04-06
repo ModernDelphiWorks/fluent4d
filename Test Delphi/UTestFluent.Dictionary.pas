@@ -1275,7 +1275,7 @@ end;
 procedure TDictionaryHelperTest.TestGetEnumerator;
 var
   LDictionary: TFluentDictionary<Integer, String>;
-  LEnum: IFluentEnum<TPair<Integer, String>>;
+  LEnum: IFluentEnumerator<TPair<Integer, String>>;
   LCount: Integer;
 begin
   LDictionary := TFluentDictionary<Integer, String>.Create;
@@ -2031,7 +2031,7 @@ procedure TDictionaryHelperTest.TestGroupBy;
 var
   LDictionary: TFluentDictionary<Integer, String>;
   LGroups: IGroupedEnumerator<String, TPair<Integer, String>>;
-  LEnum: IFluentEnum<IGrouping<String, TPair<Integer, String>>>;
+  LEnum: IFluentEnumerator<IGrouping<String, TPair<Integer, String>>>;
   LGroup: IGrouping<String, TPair<Integer, String>>;
   LCount: Integer;
 begin

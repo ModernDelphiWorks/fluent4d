@@ -38,27 +38,22 @@ uses
   Fluent.Adapters;
 
 type
-  TFluentEnumerableBase<T> = class abstract(TInterfacedObject, IFluentEnumerableBase<T>)
-  protected
-    function GetEnumerator: IFluentEnum<T>; virtual; abstract;
-  end;
-
   TFluentFilterEnumerable<T> = class(TFluentEnumerableBase<T>)
   private
     FSource: IFluentEnumerableBase<T>;
     FPredicate: TFunc<T, Boolean>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const APredicate: TFunc<T, Boolean>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentFilterEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentFilterEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FPredicate: TFunc<T, Boolean>;
     FCurrent: T;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const APredicate: TFunc<T, Boolean>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const APredicate: TFunc<T, Boolean>);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -71,16 +66,16 @@ type
     FSelector: TFunc<T, TResult>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ASelector: TFunc<T, TResult>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentMapEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentMapEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSelector: TFunc<T, TResult>;
     FCurrent: TResult;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASelector: TFunc<T, TResult>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, TResult>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
     procedure Reset;
@@ -93,18 +88,18 @@ type
     FCount: Integer;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ACount: Integer);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentCycleEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentCycleEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FCount: Integer;
     FItems: TArray<T>;
     FCurrentIndex: Integer;
     FCurrentCycle: Integer;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ACount: Integer);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ACount: Integer);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -117,17 +112,17 @@ type
     FCount: Integer;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ACount: Integer);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentTakeEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentTakeEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FCount: Integer;
     FCurrentIndex: Integer;
     FCurrent: T;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ACount: Integer);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ACount: Integer);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -140,17 +135,17 @@ type
     FCount: Integer;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; ACount: Integer);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentSkipEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentSkipEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FCount: Integer;
     FSkipped: Integer;
     FCurrent: T;
   public
-    constructor Create(const ASource: IFluentEnum<T>; ACount: Integer);
+    constructor Create(const ASource: IFluentEnumerator<T>; ACount: Integer);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -163,18 +158,18 @@ type
     FComparer: TFunc<T, T, Integer>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const AComparer: TFunc<T, T, Integer>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentOrderByEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentOrderByEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
     FItems: TArray<T>;
     FIndex: Integer;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const AComparer: TFunc<T, T, Integer>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const AComparer: TFunc<T, T, Integer>);
     function GetCurrent: T;
     function MoveNext: Boolean;
-    procedure Reset; // Corrigido de Aufsetzen pra Reset
+    procedure Reset;
     property Current: T read GetCurrent;
   end;
 
@@ -183,16 +178,16 @@ type
     FSource: IFluentEnumerableBase<T>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentDistinctEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentDistinctEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSet: TList<T>;
     FCurrent: T;
   public
-    constructor Create(const ASource: IFluentEnum<T>);
+    constructor Create(const ASource: IFluentEnumerator<T>);
     destructor Destroy; override;
     function GetCurrent: T;
     function MoveNext: Boolean;
@@ -206,19 +201,19 @@ type
     FKeySelector: TFunc<T, TKey>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const AKeySelector: TFunc<T, TKey>);
-    function GetEnumerator: IFluentEnum<IGrouping<TKey, T>>; override;
+    function GetEnumerator: IFluentEnumerator<IGrouping<TKey, T>>; override;
     function AsEnumerable: IFluentEnumerable<IGrouping<TKey, T>>;
   end;
 
-  TFluentGroupByEnumerator<TKey, T> = class(TInterfacedObject, IFluentEnum<IGrouping<TKey, T>>)
+  TFluentGroupByEnumerator<TKey, T> = class(TInterfacedObject, IFluentEnumerator<IGrouping<TKey, T>>)
   private
-    FSourceEnum: IFluentEnum<T>;
+    FSourceEnum: IFluentEnumerator<T>;
     FKeySelector: TFunc<T, TKey>;
     FGroups: TDictionary<TKey, TList<T>>;
     FEnumerator: TEnumerator<TPair<TKey, TList<T>>>;
     FCurrent: IGrouping<TKey, T>;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const AKeySelector: TFunc<T, TKey>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const AKeySelector: TFunc<T, TKey>);
     destructor Destroy; override;
     function GetCurrent: IGrouping<TKey, T>;
     function MoveNext: Boolean;
@@ -232,18 +227,18 @@ type
     FSelector: TFunc<T, TArray<TResult>>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ASelector: TFunc<T, TArray<TResult>>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentFlatMapEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentFlatMapEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSelector: TFunc<T, TArray<TResult>>;
     FCurrentArray: TArray<TResult>;
     FIndex: Integer;
     FCurrent: TResult;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASelector: TFunc<T, TArray<TResult>>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, TArray<TResult>>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
     procedure Reset;
@@ -256,17 +251,17 @@ type
     FPredicate: TFunc<T, Boolean>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const APredicate: TFunc<T, Boolean>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentTakeWhileEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentTakeWhileEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FPredicate: TFunc<T, Boolean>;
     FCurrent: T;
     FDone: Boolean;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const APredicate: TFunc<T, Boolean>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const APredicate: TFunc<T, Boolean>);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -279,17 +274,17 @@ type
     FPredicate: TFunc<T, Boolean>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const APredicate: TFunc<T, Boolean>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentSkipWhileEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentSkipWhileEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FPredicate: TFunc<T, Boolean>;
     FSkipped: Boolean;
     FCurrent: T;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const APredicate: TFunc<T, Boolean>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const APredicate: TFunc<T, Boolean>);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -304,17 +299,17 @@ type
   public
     constructor Create(const ASource1: IFluentEnumerableBase<T>; const ASource2: IFluentEnumerableBase<TSecond>;
       const ASelector: TFunc<T, TSecond, TResult>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentZipEnumerator<T, TSecond, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentZipEnumerator<T, TSecond, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource1: IFluentEnum<T>;
-    FSource2: IFluentEnum<TSecond>;
+    FSource1: IFluentEnumerator<T>;
+    FSource2: IFluentEnumerator<TSecond>;
     FSelector: TFunc<T, TSecond, TResult>;
     FCurrent: TResult;
   public
-    constructor Create(const ASource1: IFluentEnum<T>; const ASource2: IFluentEnum<TSecond>;
+    constructor Create(const ASource1: IFluentEnumerator<T>; const ASource2: IFluentEnumerator<TSecond>;
       const ASelector: TFunc<T, TSecond, TResult>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
@@ -333,20 +328,20 @@ type
     constructor Create(const ASource: IFluentEnumerableBase<T>; const AInner: IFluentEnumerableBase<TInner>;
       const AOuterKeySelector: TFunc<T, TKey>; const AInnerKeySelector: TFunc<TInner, TKey>;
       const AResultSelector: TFunc<T, TInner, TResult>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentJoinEnumerator<T, TInner, TKey, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentJoinEnumerator<T, TInner, TKey, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FInner: TList<TInner>;
     FOuterKeySelector: TFunc<T, TKey>;
     FInnerKeySelector: TFunc<TInner, TKey>;
     FResultSelector: TFunc<T, TInner, TResult>;
     FCurrent: TResult;
-    FInnerEnum: IFluentEnum<TInner>;
+    FInnerEnum: IFluentEnumerator<TInner>;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const AInner: IFluentEnum<TInner>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const AInner: IFluentEnumerator<TInner>;
       const AOuterKeySelector: TFunc<T, TKey>; const AInnerKeySelector: TFunc<TInner, TKey>;
       const AResultSelector: TFunc<T, TInner, TResult>);
     destructor Destroy; override;
@@ -364,17 +359,17 @@ type
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const AIsType: TFunc<T, Boolean>;
       const AConverter: TFunc<T, TResult>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentOfTypeEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentOfTypeEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FIsType: TFunc<T, Boolean>;
     FConverter: TFunc<T, TResult>;
     FCurrent: TResult;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const AIsType: TFunc<T, Boolean>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const AIsType: TFunc<T, Boolean>;
       const AConverter: TFunc<T, TResult>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
@@ -388,18 +383,18 @@ type
     FSelector: TFunc<T, IFluentWrapper<TResult>>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ASelector: TFunc<T, IFluentWrapper<TResult>>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentSelectManyEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentSelectManyEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSelector: TFunc<T, IFluentWrapper<TResult>>;
     FCurrentWrapper: IFluentWrapper<TResult>;
-    FCurrentEnum: IFluentEnum<TResult>;
+    FCurrentEnum: IFluentEnumerator<TResult>;
     FCurrent: TResult;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASelector: TFunc<T, IFluentWrapper<TResult>>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, IFluentWrapper<TResult>>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
     procedure Reset;
@@ -417,19 +412,19 @@ type
     constructor Create(const ASource: IFluentEnumerableBase<T>; const AInner: IFluentEnumerableBase<TInner>;
       const AOuterKeySelector: TFunc<T, TKey>; const AInnerKeySelector: TFunc<TInner, TKey>;
       const AResultSelector: TFunc<T, IFluentWrapper<TInner>, TResult>);
-    function GetEnumerator: IFluentEnum<TResult>; override;
+    function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
-  TFluentGroupJoinEnumerator<T, TInner, TKey, TResult> = class(TInterfacedObject, IFluentEnum<TResult>)
+  TFluentGroupJoinEnumerator<T, TInner, TKey, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FInner: TList<TInner>;
     FOuterKeySelector: TFunc<T, TKey>;
     FInnerKeySelector: TFunc<TInner, TKey>;
     FResultSelector: TFunc<T, IFluentWrapper<TInner>, TResult>;
     FCurrent: TResult;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const AInner: IFluentEnum<TInner>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const AInner: IFluentEnumerator<TInner>;
       const AOuterKeySelector: TFunc<T, TKey>; const AInnerKeySelector: TFunc<TInner, TKey>;
       const AResultSelector: TFunc<T, IFluentWrapper<TInner>, TResult>);
     destructor Destroy; override;
@@ -448,18 +443,18 @@ type
     constructor Create(const ASource: IFluentEnumerableBase<T>;
       const ASecond: IFluentEnumerableBase<T>;
       const AComparer: IEqualityComparer<T>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentExcludeEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentExcludeEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSecond: TDictionary<T, Boolean>;
     FCurrent: T;
     FComparer: IEqualityComparer<T>;
     function ContainsValue(const AValue: T): Boolean;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASecond: IFluentEnum<T>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>;
       const AComparer: IEqualityComparer<T>);
     destructor Destroy; override;
     function GetCurrent: T;
@@ -477,18 +472,18 @@ type
     constructor Create(const ASource: IFluentEnumerableBase<T>;
       const ASecond: IFluentEnumerableBase<T>;
       const AComparer: IEqualityComparer<T>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentIntersectEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentIntersectEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
     FSecond: TDictionary<T, Boolean>;
     FCurrent: T;
     FComparer: IEqualityComparer<T>;
     function ContainsValue(const AValue: T): Boolean;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASecond: IFluentEnum<T>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>;
       const AComparer: IEqualityComparer<T>);
     destructor Destroy; override;
     function GetCurrent: T;
@@ -506,20 +501,20 @@ type
     constructor Create(const ASource: IFluentEnumerableBase<T>;
       const ASecond: IFluentEnumerableBase<T>;
       const AComparer: IEqualityComparer<T>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentUnionEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentUnionEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
-    FSecond: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
+    FSecond: IFluentEnumerator<T>;
     FSet: TDictionary<T, Boolean>;
     FCurrent: T;
     FOnSecond: Boolean;
     FComparer: IEqualityComparer<T>;
     function ContainsValue(const AValue: T): Boolean;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASecond: IFluentEnum<T>;
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>;
       const AComparer: IEqualityComparer<T>);
     destructor Destroy; override;
     function GetCurrent: T;
@@ -534,17 +529,17 @@ type
     FSecond: IFluentEnumerableBase<T>;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; const ASecond: IFluentEnumerableBase<T>);
-    function GetEnumerator: IFluentEnum<T>; override;
+    function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
-  TFluentConcatEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentConcatEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FSource: IFluentEnum<T>;
-    FSecond: IFluentEnum<T>;
+    FSource: IFluentEnumerator<T>;
+    FSecond: IFluentEnumerator<T>;
     FCurrent: T;
     FOnSecond: Boolean;
   public
-    constructor Create(const ASource: IFluentEnum<T>; const ASecond: IFluentEnum<T>);
+    constructor Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>);
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -571,10 +566,10 @@ type
     FCount: Integer;
   public
     constructor Create(const ASource: IFluentEnumerableBase<T>; ACount: Integer);
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
   end;
 
-  TFluentTeeEnumerator<T> = class(TInterfacedObject, IFluentEnum<T>)
+  TFluentTeeEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
     FItems: TArray<T>;
     FIndex: Integer;
@@ -597,14 +592,14 @@ begin
   FPredicate := APredicate;
 end;
 
-function TFluentFilterEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentFilterEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentFilterEnumerator<T>.Create(FSource.GetEnumerator, FPredicate);
 end;
 
 { TFluentFilterEnumerator<T> }
 
-constructor TFluentFilterEnumerator<T>.Create(const ASource: IFluentEnum<T>; const APredicate: TFunc<T, Boolean>);
+constructor TFluentFilterEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const APredicate: TFunc<T, Boolean>);
 begin
   FSource := ASource;
   FPredicate := APredicate;
@@ -642,14 +637,14 @@ begin
   FSelector := ASelector;
 end;
 
-function TFluentMapEnumerable<T, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentMapEnumerable<T, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentMapEnumerator<T, TResult>.Create(FSource.GetEnumerator, FSelector);
 end;
 
 { TFluentMapEnumerator<T, TResult> }
 
-constructor TFluentMapEnumerator<T, TResult>.Create(const ASource: IFluentEnum<T>; const ASelector: TFunc<T, TResult>);
+constructor TFluentMapEnumerator<T, TResult>.Create(const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, TResult>);
 begin
   FSource := ASource;
   FSelector := ASelector;
@@ -684,14 +679,14 @@ begin
   FCount := ACount;
 end;
 
-function TFluentCycleEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentCycleEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentCycleEnumerator<T>.Create(FSource.GetEnumerator, FCount);
 end;
 
 { TFluentCycleEnumerator<T> }
 
-constructor TFluentCycleEnumerator<T>.Create(const ASource: IFluentEnum<T>; const ACount: Integer);
+constructor TFluentCycleEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const ACount: Integer);
 var
   LList: TList<T>;
 begin
@@ -741,14 +736,14 @@ begin
   FCount := ACount;
 end;
 
-function TFluentTakeEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentTakeEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentTakeEnumerator<T>.Create(FSource.GetEnumerator, FCount);
 end;
 
 { TFluentTakeEnumerator<T> }
 
-constructor TFluentTakeEnumerator<T>.Create(const ASource: IFluentEnum<T>; const ACount: Integer);
+constructor TFluentTakeEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const ACount: Integer);
 begin
   FSource := ASource;
   FCount := ACount;
@@ -791,14 +786,14 @@ begin
   FCount := ACount;
 end;
 
-function TFluentSkipEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentSkipEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentSkipEnumerator<T>.Create(FSource.GetEnumerator, FCount);
 end;
 
 { TFluentSkipEnumerator<T> }
 
-constructor TFluentSkipEnumerator<T>.Create(const ASource: IFluentEnum<T>; ACount: Integer);
+constructor TFluentSkipEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; ACount: Integer);
 begin
   FSource := ASource;
   FCount := ACount;
@@ -838,14 +833,14 @@ begin
   FComparer := AComparer;
 end;
 
-function TFluentOrderByEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentOrderByEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentOrderByEnumerator<T>.Create(FSource.GetEnumerator, FComparer);
 end;
 
 { TFluentOrderByEnumerator<T> }
 
-constructor TFluentOrderByEnumerator<T>.Create(const ASource: IFluentEnum<T>; const AComparer: TFunc<T, T, Integer>);
+constructor TFluentOrderByEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const AComparer: TFunc<T, T, Integer>);
 var
   LList: TList<T>;
 begin
@@ -888,14 +883,14 @@ begin
   FSource := ASource;
 end;
 
-function TFluentDistinctEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentDistinctEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentDistinctEnumerator<T>.Create(FSource.GetEnumerator);
 end;
 
 { TFluentDistinctEnumerator<T> }
 
-constructor TFluentDistinctEnumerator<T>.Create(const ASource: IFluentEnum<T>);
+constructor TFluentDistinctEnumerator<T>.Create(const ASource: IFluentEnumerator<T>);
 begin
   FSource := ASource;
   FSet := TList<T>.Create;
@@ -959,7 +954,7 @@ begin
   FKeySelector := AKeySelector;
 end;
 
-function TFluentGroupByEnumerable<TKey, T>.GetEnumerator: IFluentEnum<IGrouping<TKey, T>>;
+function TFluentGroupByEnumerable<TKey, T>.GetEnumerator: IFluentEnumerator<IGrouping<TKey, T>>;
 begin
   Result := TFluentGroupByEnumerator<TKey, T>.Create(FSource.GetEnumerator, FKeySelector);
 end;
@@ -971,7 +966,7 @@ end;
 
 { TFluentGroupByEnumerator<TKey, T> }
 
-constructor TFluentGroupByEnumerator<TKey, T>.Create(const ASource: IFluentEnum<T>; const AKeySelector: TFunc<T, TKey>);
+constructor TFluentGroupByEnumerator<TKey, T>.Create(const ASource: IFluentEnumerator<T>; const AKeySelector: TFunc<T, TKey>);
 var
   LItem: T;
 begin
@@ -1033,14 +1028,14 @@ begin
   FSelector := ASelector;
 end;
 
-function TFluentFlatMapEnumerable<T, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentFlatMapEnumerable<T, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentFlatMapEnumerator<T, TResult>.Create(FSource.GetEnumerator, FSelector);
 end;
 
 { TFluentFlatMapEnumerator<T, TResult> }
 
-constructor TFluentFlatMapEnumerator<T, TResult>.Create(const ASource: IFluentEnum<T>;
+constructor TFluentFlatMapEnumerator<T, TResult>.Create(const ASource: IFluentEnumerator<T>;
   const ASelector: TFunc<T, TArray<TResult>>);
 begin
   FSource := ASource;
@@ -1095,14 +1090,14 @@ begin
   FPredicate := APredicate;
 end;
 
-function TFluentTakeWhileEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentTakeWhileEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentTakeWhileEnumerator<T>.Create(FSource.GetEnumerator, FPredicate);
 end;
 
 { TFluentTakeWhileEnumerator<T> }
 
-constructor TFluentTakeWhileEnumerator<T>.Create(const ASource: IFluentEnum<T>; const APredicate: TFunc<T, Boolean>);
+constructor TFluentTakeWhileEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const APredicate: TFunc<T, Boolean>);
 begin
   FSource := ASource;
   FPredicate := APredicate;
@@ -1142,14 +1137,14 @@ begin
   FPredicate := APredicate;
 end;
 
-function TFluentSkipWhileEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentSkipWhileEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentSkipWhileEnumerator<T>.Create(FSource.GetEnumerator, FPredicate);
 end;
 
 { TFluentSkipWhileEnumerator<T> }
 
-constructor TFluentSkipWhileEnumerator<T>.Create(const ASource: IFluentEnum<T>;
+constructor TFluentSkipWhileEnumerator<T>.Create(const ASource: IFluentEnumerator<T>;
   const APredicate: TFunc<T, Boolean>);
 begin
   FSource := ASource;
@@ -1199,15 +1194,15 @@ begin
   FSelector := ASelector;
 end;
 
-function TFluentZipEnumerable<T, TSecond, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentZipEnumerable<T, TSecond, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentZipEnumerator<T, TSecond, TResult>.Create(FSource1.GetEnumerator, FSource2.GetEnumerator, FSelector);
 end;
 
 { TFluentZipEnumerator<T, TSecond, TResult> }
 
-constructor TFluentZipEnumerator<T, TSecond, TResult>.Create(const ASource1: IFluentEnum<T>;
-  const ASource2: IFluentEnum<TSecond>; const ASelector: TFunc<T, TSecond, TResult>);
+constructor TFluentZipEnumerator<T, TSecond, TResult>.Create(const ASource1: IFluentEnumerator<T>;
+  const ASource2: IFluentEnumerator<TSecond>; const ASelector: TFunc<T, TSecond, TResult>);
 begin
   FSource1 := ASource1;
   FSource2 := ASource2;
@@ -1249,7 +1244,7 @@ begin
   FResultSelector := AResultSelector;
 end;
 
-function TFluentJoinEnumerable<T, TInner, TKey, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentJoinEnumerable<T, TInner, TKey, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentJoinEnumerator<T, TInner, TKey, TResult>.Create(FSource.GetEnumerator, FInner.GetEnumerator,
     FOuterKeySelector, FInnerKeySelector, FResultSelector);
@@ -1257,8 +1252,8 @@ end;
 
 { TFluentJoinEnumerator<T, TInner, TKey, TResult> }
 
-constructor TFluentJoinEnumerator<T, TInner, TKey, TResult>.Create(const ASource: IFluentEnum<T>;
-  const AInner: IFluentEnum<TInner>; const AOuterKeySelector: TFunc<T, TKey>;
+constructor TFluentJoinEnumerator<T, TInner, TKey, TResult>.Create(const ASource: IFluentEnumerator<T>;
+  const AInner: IFluentEnumerator<TInner>; const AOuterKeySelector: TFunc<T, TKey>;
   const AInnerKeySelector: TFunc<TInner, TKey>; const AResultSelector: TFunc<T, TInner, TResult>);
 begin
   FSource := ASource;
@@ -1328,14 +1323,14 @@ begin
   FConverter := AConverter;
 end;
 
-function TFluentOfTypeEnumerable<T, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentOfTypeEnumerable<T, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentOfTypeEnumerator<T, TResult>.Create(FSource.GetEnumerator, FIsType, FConverter);
 end;
 
 { TFluentOfTypeEnumerator<T, TResult> }
 
-constructor TFluentOfTypeEnumerator<T, TResult>.Create(const ASource: IFluentEnum<T>;
+constructor TFluentOfTypeEnumerator<T, TResult>.Create(const ASource: IFluentEnumerator<T>;
   const AIsType: TFunc<T, Boolean>; const AConverter: TFunc<T, TResult>);
 begin
   FSource := ASource;
@@ -1376,14 +1371,14 @@ begin
   FSelector := ASelector;
 end;
 
-function TFluentSelectManyEnumerable<T, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentSelectManyEnumerable<T, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentSelectManyEnumerator<T, TResult>.Create(FSource.GetEnumerator, FSelector);
 end;
 
 { TFluentSelectManyEnumerator<T, TResult> }
 
-constructor TFluentSelectManyEnumerator<T, TResult>.Create(const ASource: IFluentEnum<T>;
+constructor TFluentSelectManyEnumerator<T, TResult>.Create(const ASource: IFluentEnumerator<T>;
   const ASelector: TFunc<T, IFluentWrapper<TResult>>);
 begin
   FSource := ASource;
@@ -1430,7 +1425,7 @@ begin
   FResultSelector := AResultSelector;
 end;
 
-function TFluentGroupJoinEnumerable<T, TInner, TKey, TResult>.GetEnumerator: IFluentEnum<TResult>;
+function TFluentGroupJoinEnumerable<T, TInner, TKey, TResult>.GetEnumerator: IFluentEnumerator<TResult>;
 begin
   Result := TFluentGroupJoinEnumerator<T, TInner, TKey, TResult>.Create(FSource.GetEnumerator, FInner.GetEnumerator,
     FOuterKeySelector, FInnerKeySelector, FResultSelector);
@@ -1438,8 +1433,8 @@ end;
 
 { TFluentGroupJoinEnumerator<T, TInner, TKey, TResult> }
 
-constructor TFluentGroupJoinEnumerator<T, TInner, TKey, TResult>.Create(const ASource: IFluentEnum<T>;
-  const AInner: IFluentEnum<TInner>; const AOuterKeySelector: TFunc<T, TKey>;
+constructor TFluentGroupJoinEnumerator<T, TInner, TKey, TResult>.Create(const ASource: IFluentEnumerator<T>;
+  const AInner: IFluentEnumerator<TInner>; const AOuterKeySelector: TFunc<T, TKey>;
   const AInnerKeySelector: TFunc<TInner, TKey>; const AResultSelector: TFunc<T, IFluentWrapper<TInner>, TResult>);
 begin
   FSource := ASource;
@@ -1499,15 +1494,15 @@ begin
   FComparer := AComparer;
 end;
 
-function TFluentExcludeEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentExcludeEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentExcludeEnumerator<T>.Create(FSource.GetEnumerator, FSecond.GetEnumerator, FComparer);
 end;
 
 { TFluentExcludeEnumerator<T> }
 
-constructor TFluentExcludeEnumerator<T>.Create(const ASource: IFluentEnum<T>;
-  const ASecond: IFluentEnum<T>; const AComparer: IEqualityComparer<T>);
+constructor TFluentExcludeEnumerator<T>.Create(const ASource: IFluentEnumerator<T>;
+  const ASecond: IFluentEnumerator<T>; const AComparer: IEqualityComparer<T>);
 begin
   FSource := ASource;
   FComparer := AComparer;
@@ -1566,15 +1561,15 @@ begin
   FComparer := AComparer;
 end;
 
-function TFluentIntersectEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentIntersectEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentIntersectEnumerator<T>.Create(FSource.GetEnumerator, FSecond.GetEnumerator, FComparer);
 end;
 
 { TFluentIntersectEnumerator<T> }
 
-constructor TFluentIntersectEnumerator<T>.Create(const ASource: IFluentEnum<T>;
-  const ASecond: IFluentEnum<T>; const AComparer: IEqualityComparer<T>);
+constructor TFluentIntersectEnumerator<T>.Create(const ASource: IFluentEnumerator<T>;
+  const ASecond: IFluentEnumerator<T>; const AComparer: IEqualityComparer<T>);
 begin
   FSource := ASource;
   FComparer := AComparer;
@@ -1634,15 +1629,15 @@ begin
   FComparer := AComparer;
 end;
 
-function TFluentUnionEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentUnionEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentUnionEnumerator<T>.Create(FSource.GetEnumerator, FSecond.GetEnumerator, FComparer);
 end;
 
 { TFluentUnionEnumerator<T> }
 
-constructor TFluentUnionEnumerator<T>.Create(const ASource: IFluentEnum<T>;
-  const ASecond: IFluentEnum<T>; const AComparer: IEqualityComparer<T>);
+constructor TFluentUnionEnumerator<T>.Create(const ASource: IFluentEnumerator<T>;
+  const ASecond: IFluentEnumerator<T>; const AComparer: IEqualityComparer<T>);
 begin
   FSource := ASource;
   FSecond := ASecond;
@@ -1722,13 +1717,13 @@ begin
   FSecond := ASecond;
 end;
 
-function TFluentConcatEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentConcatEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := TFluentConcatEnumerator<T>.Create(FSource.GetEnumerator, FSecond.GetEnumerator);
 end;
 
 // TFluentConcatEnumerator<T>
-constructor TFluentConcatEnumerator<T>.Create(const ASource: IFluentEnum<T>; const ASecond: IFluentEnum<T>);
+constructor TFluentConcatEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>);
 begin
   FSource := ASource;
   FSecond := ASecond;
@@ -1773,7 +1768,7 @@ end;
 
 constructor TFluentTeeEnumerable<T>.Create(const ASource: IFluentEnumerableBase<T>; ACount: Integer);
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LList: TList<T>;
   I: Integer;
   J: Integer;
@@ -1799,7 +1794,7 @@ begin
   end;
 end;
 
-function TFluentTeeEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function TFluentTeeEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   if not FPopulated then
     raise EInvalidOperation.Create('Tee items should already be populated in constructor');

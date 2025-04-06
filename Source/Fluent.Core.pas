@@ -36,10 +36,14 @@ uses
   Generics.Defaults;
 
 type
-  TAction<T> = reference to procedure(const AArg: T);
-  IGroupedEnumerator<TKey, T> = interface;
+  TFluentType = (ftNone, ftList, ftDictionary);
 
-  IFluentEnum<T> = interface(IInterface)
+  TAction<T> = reference to procedure(const AArg: T);
+
+  IGroupedEnumerator<TKey, T> = interface;
+  IFluentWrapper<TResult> = interface;
+
+  IFluentEnumerator<T> = interface(IInterface)
     ['{E2DEBD49-1094-41A5-A817-48FB81A6F6F2}']
     function GetCurrent: T;
     function MoveNext: Boolean;
@@ -49,35 +53,42 @@ type
 
   IFluentEnumerableBase<T> = interface(IInterface)
     ['{B68572C5-32C6-436A-B39B-D8DA06E33C14}']
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
   end;
 
   IFluentQueryableBase<T> = interface(IInterface)
     ['{5E8E37CE-6372-4FBB-872B-9687A24F63DD}']
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
     function BuildQuery: string;
   end;
 
-  IFluentWrapper<TResult> = interface;
+  TFluentEnumerableBase<T> = class abstract(TInterfacedObject, IFluentEnumerableBase<T>)
+  protected
+    function GetEnumerator: IFluentEnumerator<T>; virtual; abstract;
+  end;
 
-  TFluentType = (ftNone, ftList, ftDictionary, ftArray, ftString);
+  TFluentQueryableBase<T> = class abstract(TInterfacedObject, IFluentQueryableBase<T>)
+  protected
+    function GetEnumerator: IFluentEnumerator<T>; virtual; abstract;
+    function BuildQuery: string;
+  end;
 
   IFluentEnumerable<T> = record
   private
     FEnumerator: IFluentEnumerableBase<T>;
     FFluentType: TFluentType;
     FComparer: IEqualityComparer<T>;
-      type
-        TFluentCompare = class
-        public
-          class function Compare(const AEnumerator: IFluentEnumerableBase<T>;
-            const AValue: T; const AComparer: IEqualityComparer<T>): Boolean; static;
-        end;
+    type
+      TFluentCompare = class
+      public
+        class function Compare(const AEnumerator: IFluentEnumerableBase<T>;
+          const AValue: T; const AComparer: IEqualityComparer<T>): Boolean; static;
+      end;
   public
     constructor Create(const AEnumerator: IFluentEnumerableBase<T>;
       const AFluentType: TFluentType = ftNone; const AComparer: IEqualityComparer<T> = nil);
     procedure ForEach(const AAction: TAction<T>);
-    function GetEnumerator: IFluentEnum<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
     function Filter(const APredicate: TFunc<T, Boolean>): IFluentEnumerable<T>;
     function Take(const ACount: Integer): IFluentEnumerable<T>;
     function Skip(const ACount: Integer): IFluentEnumerable<T>;
@@ -142,6 +153,14 @@ type
     function ElementAtOrDefault(const AIndex: Integer): T;
   end;
 
+  IFluentQueryable<T> = record
+  private
+    FQueryable: IFluentQueryableBase<T>;
+  public
+    constructor Create(AQueryable: IFluentQueryableBase<T>);
+    function GetEnumerator: IFluentEnumerator<T>;
+  end;
+
   IFluentWrapper<TResult> = interface(IInterface)
     ['{DDB79C8C-52AC-4542-877F-EFE1874882E9}']
     function Value: IFluentEnumerable<TResult>;
@@ -157,14 +176,6 @@ type
     function Value: IFluentEnumerable<TResult>;
   end;
 
-  IFluentQueryable<T> = record
-  private
-    FQueryable: IFluentQueryableBase<T>;
-  public
-    constructor Create(AQueryable: IFluentQueryableBase<T>);
-    function GetEnumerator: IFluentEnum<T>;
-  end;
-
   IGrouping<TKey, T> = interface(IInterface)
     ['{87B4E3F7-C092-44D1-B682-0B03C0202BF0}']
     function GetKey: TKey;
@@ -175,7 +186,7 @@ type
 
   IGroupedEnumerator<TKey, T> = interface(IInterface)
     ['{A85DB3F6-E808-4E81-B386-75190087507B}']
-    function GetEnumerator: IFluentEnum<IGrouping<TKey, T>>;
+    function GetEnumerator: IFluentEnumerator<IGrouping<TKey, T>>;
     function AsEnumerable: IFluentEnumerable<IGrouping<TKey, T>>;
   end;
 
@@ -199,14 +210,14 @@ end;
 
 procedure IFluentEnumerable<T>.ForEach(const AAction: TAction<T>);
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
     AAction(LEnum.Current);
 end;
 
-function IFluentEnumerable<T>.GetEnumerator: IFluentEnum<T>;
+function IFluentEnumerable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := FEnumerator.GetEnumerator;
 end;
@@ -269,7 +280,7 @@ end;
 function IFluentEnumerable<T>.DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): IFluentEnumerable<T>;
 var
   LSeenKeys: TDictionary<TKey, T>;
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LItems: TArray<T>;
   LItem: T;
   LIndex: Integer;
@@ -321,7 +332,7 @@ end;
 function IFluentEnumerable<T>.Reduce(const AReducer: TFunc<T, T, T>;
   const AInitialValue: T): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   Result := AInitialValue;
   LEnum := GetEnumerator;
@@ -331,7 +342,7 @@ end;
 
 function IFluentEnumerable<T>.Reduce(const AReducer: TFunc<T, T, T>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LHasValue: Boolean;
 begin
@@ -356,7 +367,7 @@ end;
 function IFluentEnumerable<T>.Reduce<TAcc>(const AInitialValue: TAcc;
   const AAccumulator: TFunc<TAcc, T, TAcc>): TAcc;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: TAcc;
 begin
   LEnum := GetEnumerator;
@@ -413,7 +424,7 @@ end;
 
 function IFluentEnumerable<T>.Sum(const ASelector: TFunc<T, Double>): Double;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LSum: Double;
 begin
   LEnum := GetEnumerator;
@@ -425,7 +436,7 @@ end;
 
 function IFluentEnumerable<T>.Sum(const ASelector: TFunc<T, Integer>): Integer;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LSum: Integer;
 begin
   LEnum := GetEnumerator;
@@ -437,7 +448,7 @@ end;
 
 function IFluentEnumerable<T>.Average(const ASelector: TFunc<T, Double>): Double;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LSum: Double;
   LCount: Integer;
 begin
@@ -456,7 +467,7 @@ end;
 
 function IFluentEnumerable<T>.Min(const AComparer: TFunc<T, T, Integer>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LHasValue: Boolean;
 begin
@@ -488,7 +499,7 @@ end;
 
 function IFluentEnumerable<T>.Max(const AComparer: TFunc<T, T, Integer>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LHasValue: Boolean;
 begin
@@ -520,7 +531,7 @@ end;
 
 function IFluentEnumerable<T>.Any(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
@@ -531,7 +542,7 @@ end;
 
 function IFluentEnumerable<T>.All(const APredicate: TFunc<T, Boolean>): Boolean;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
@@ -547,7 +558,7 @@ end;
 
 function IFluentEnumerable<T>.First(const APredicate: TFunc<T, Boolean> = nil): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LItem: T;
   LFound: Boolean;
 begin
@@ -571,7 +582,7 @@ end;
 
 function IFluentEnumerable<T>.FirstOrDefault(const APredicate: TFunc<T, Boolean>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
@@ -582,7 +593,7 @@ end;
 
 function IFluentEnumerable<T>.Last(const APredicate: TFunc<T, Boolean>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LHasValue: Boolean;
 begin
@@ -602,7 +613,7 @@ end;
 
 function IFluentEnumerable<T>.LastOrDefault(const APredicate: TFunc<T, Boolean>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LHasValue: Boolean;
 begin
@@ -623,7 +634,7 @@ end;
 
 function IFluentEnumerable<T>.Count(const APredicate: TFunc<T, Boolean>): Integer;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LCount: Integer;
 begin
   LEnum := GetEnumerator;
@@ -636,7 +647,7 @@ end;
 
 function IFluentEnumerable<T>.LongCount(const APredicate: TFunc<T, Boolean>): Int64;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LCount: Int64;
 begin
   LEnum := GetEnumerator;
@@ -676,7 +687,7 @@ end;
 
 function IFluentEnumerable<T>.ToArray: TArray<T>;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LList: TList<T>;
 begin
   LList := TList<T>.Create;
@@ -693,7 +704,7 @@ end;
 function IFluentEnumerable<T>.ToList: TList<T>;
 var
   LList: TList<T>;
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LList := TList<T>.Create;
   LEnum := GetEnumerator;
@@ -705,7 +716,7 @@ end;
 function IFluentEnumerable<T>.ToDictionary<TKey, TValue>(const AKeySelector: TFunc<T, TKey>;
   const AValueSelector: TFunc<T, TValue>): TDictionary<TKey, TValue>;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LDict: TDictionary<TKey, TValue>;
 begin
   LDict := TDictionary<TKey, TValue>.Create;
@@ -771,7 +782,7 @@ end;
 function IFluentEnumerable<T>.MinBy<TKey>(const AKeySelector: TFunc<T, TKey>;
   const AComparer: TFunc<TKey, TKey, Integer>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LMinKey: TKey;
   LKey: TKey;
@@ -807,7 +818,7 @@ end;
 function IFluentEnumerable<T>.MaxBy<TKey>(const AKeySelector: TFunc<T, TKey>;
   const AComparer: TFunc<TKey, TKey, Integer>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LResult: T;
   LMaxKey: TKey;
   LKey: TKey;
@@ -887,7 +898,7 @@ end;
 
 function IFluentEnumerable<T>.SequenceEqual(const ASecond: IFluentEnumerable<T>): Boolean;
 var
-  LEnum1, LEnum2: IFluentEnum<T>;
+  LEnum1, LEnum2: IFluentEnumerator<T>;
 begin
   LEnum1 := GetEnumerator;
   LEnum2 := ASecond.GetEnumerator;
@@ -899,7 +910,7 @@ end;
 
 function IFluentEnumerable<T>.Single(const APredicate: TFunc<T, Boolean>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LFound: Boolean;
 begin
   Result := Default(T);
@@ -921,7 +932,7 @@ end;
 
 function IFluentEnumerable<T>.SingleOrDefault(const APredicate: TFunc<T, Boolean>): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LFound: Boolean;
 begin
   Result := Default(T);
@@ -941,7 +952,7 @@ end;
 
 function IFluentEnumerable<T>.ElementAt(const AIndex: Integer): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LCount: Integer;
 begin
   if AIndex < 0 then
@@ -959,7 +970,7 @@ end;
 
 function IFluentEnumerable<T>.ElementAtOrDefault(const AIndex: Integer): T;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
   LCount: Integer;
 begin
   if AIndex < 0 then
@@ -982,7 +993,7 @@ begin
   FQueryable := AQueryable;
 end;
 
-function IFluentQueryable<T>.GetEnumerator: IFluentEnum<T>;
+function IFluentQueryable<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
   Result := FQueryable.GetEnumerator;
 end;
@@ -1014,13 +1025,20 @@ class function IFluentEnumerable<T>.TFluentCompare.Compare(
   const AEnumerator: IFluentEnumerableBase<T>; const AValue: T;
   const AComparer: IEqualityComparer<T>): Boolean;
 var
-  LEnum: IFluentEnum<T>;
+  LEnum: IFluentEnumerator<T>;
 begin
   LEnum := AEnumerator.GetEnumerator;
   while LEnum.MoveNext do
     if AComparer.Equals(LEnum.Current, AValue) then
       Exit(True);
   Result := False;
+end;
+
+{ TFluentQueryableBase<T> }
+
+function TFluentQueryableBase<T>.BuildQuery: string;
+begin
+
 end;
 
 end.
