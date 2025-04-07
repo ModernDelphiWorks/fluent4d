@@ -1292,7 +1292,7 @@ begin
         Result := False;
         Exit;
       end;
-      FInnerEnum := TListEnumerator<TInner>.Create(FInner);
+      FInnerEnum := TListEnumerator<TInner>.Create(FInner.GetEnumerator);
       if not FInnerEnum.MoveNext then
         Continue;
     end;

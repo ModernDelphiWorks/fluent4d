@@ -39,7 +39,7 @@ uses
   Fluent.Adapters;
 
 type
-  ICollections<T> = interface(IInterface)
+  ICollections<T> = interface(IFluentEnumerableBase<T>)
     ['{1F1B87DA-2722-40E3-899F-5622CA9BE807}']
     function Count: NativeInt;
     function Contains(const AItem: T): Boolean;
@@ -142,9 +142,10 @@ type
     function BinarySearch(const AItem: T; out FoundIndex: NativeInt): Boolean; overload;
     function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
     function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; AIndex, Count: NativeInt): Boolean; overload;
-    function AsEnumerable: IFluentEnumerable<T>;
     function IsEmpty: Boolean;
     function ToArray: TArray<T>;
+    function AsEnumerable: IFluentEnumerable<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
 {$IF Defined(CPU64BITS)}
     function BinarySearch(const AItem: T; out FoundIndex: Integer): Boolean; overload;
     function BinarySearch(const AItem: T; out FoundIndex: Integer; const AComparer: IComparer<T>): Boolean; overload;
@@ -233,6 +234,7 @@ type
     function IsEmpty: Boolean;
     function ToArray: TArray<T>;
     function AsEnumerable: IFluentEnumerable<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
     property Capacity: NativeInt read GetCapacity write SetCapacity;
     property Items[AIndex: NativeInt]: T read GetItem write SetItem; default;
     property List: TArray<T> read GetList;
@@ -270,11 +272,12 @@ type
     function ExtractPair(const AKey: K): TPair<K, V>;
     function TryGetValue(const AKey: K; var AValue: V): Boolean;
     function TryAdd(const AKey: K; const AValue: V): Boolean;
-    function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
     function ContainsKey(const AKey: K): Boolean;
     function ContainsValue(const AValue: V): Boolean;
     function IsEmpty: Boolean;
     function ToArray: TArray<TPair<K, V>>;
+    function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
+    function GetEnumerator: IFluentEnumerator<TPair<K, V>>;
     property GrowThreshold: NativeInt read GetGrowThreshold;
     property Collisions: NativeInt read GetCollisions;
     property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
@@ -336,8 +339,9 @@ type
     function ContainsKey(const AKey: K): Boolean;
     function ContainsValue(const AValue: V): Boolean;
     function ToArray: TArray<TPair<K, V>>;
-    function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
     function IsEmpty: Boolean;
+    function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
+    function GetEnumerator: IFluentEnumerator<TPair<K, V>>;
     //
     property Capacity: NativeInt read GetCapacity write SetCapacity;
     property GrowThreshold: NativeInt read GetGrowThreshold;
@@ -823,6 +827,11 @@ begin
   );
 end;
 
+function TFluentList<T>.GetEnumerator: IFluentEnumerator<T>;
+begin
+  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
+end;
+
 class function TFluentList<T>.From(const AList: TList<T>): IFluentEnumerable<T>;
 begin
   Result := TFluentList<T>.Create(AList).GetEnumerable;
@@ -1072,6 +1081,11 @@ begin
                   TEqualityComparer<V>.Default.GetHashCode(AValue.Value);
       end)
   );
+end;
+
+function TFluentDictionary<K, V>.GetEnumerator: IFluentEnumerator<TPair<K, V>>;
+begin
+  Result := TDictionaryEnumerator<K, V>.Create(FDict.GetEnumerator);
 end;
 
 class function TFluentDictionary<K, V>.From(const ADict: TDictionary<K, V>): IFluentEnumerable<TPair<K, V>>;

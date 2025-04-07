@@ -47,10 +47,10 @@ type
 
   TListEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
-    FList: TList<T>;
-    FIndex: Integer;
+    FEnumerator: TList<T>.TEnumerator;
   public
-    constructor Create(const AList: TList<T>);
+    constructor Create(const AEnumerator: TList<T>.TEnumerator);
+    destructor Destroy; override;
     function GetCurrent: T;
     function MoveNext: Boolean;
     procedure Reset;
@@ -138,31 +138,35 @@ end;
 
 function TListAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList);
+  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
 end;
 
 { TListEnumerator<T> }
 
-constructor TListEnumerator<T>.Create(const AList: TList<T>);
+constructor TListEnumerator<T>.Create(const AEnumerator: TList<T>.TEnumerator);
 begin
-  FList := AList;
-  FIndex := -1;
+  FEnumerator := AEnumerator;
+end;
+
+destructor TListEnumerator<T>.Destroy;
+begin
+  FEnumerator.Free;
+  inherited;
 end;
 
 function TListEnumerator<T>.GetCurrent: T;
 begin
-  Result := FList[FIndex];
+  Result := FEnumerator.Current;
 end;
 
 function TListEnumerator<T>.MoveNext: Boolean;
 begin
-  Inc(FIndex);
-  Result := FIndex < FList.Count;
+  Result := FEnumerator.MoveNext;
 end;
 
 procedure TListEnumerator<T>.Reset;
 begin
-  FIndex := -1;
+  raise ENotSupportedException.Create('Reset is not supported for list enumerators');
 end;
 
 { TDictionaryAdapter<K, V> }
@@ -229,7 +233,7 @@ end;
 
 function TArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList);;
+  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
 end;
 
 { TStringAdapter }
@@ -290,7 +294,7 @@ end;
 
 function TNonGenericArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList);
+  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
 end;
 
 end.
