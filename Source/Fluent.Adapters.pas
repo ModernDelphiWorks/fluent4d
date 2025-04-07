@@ -79,6 +79,26 @@ type
     property Current: TPair<K, V> read GetCurrent;
   end;
 
+  TStringAdapter = class(TInterfacedObject, IFluentEnumerableBase<Char>)
+  private
+    FString: string;
+  public
+    constructor Create(const AString: string);
+    function GetEnumerator: IFluentEnumerator<Char>;
+  end;
+
+  TStringEnumerator = class(TInterfacedObject, IFluentEnumerator<Char>)
+  private
+    FString: string;
+    FIndex: Integer;
+  public
+    constructor Create(const AString: string);
+    function GetCurrent: Char;
+    function MoveNext: Boolean;
+    procedure Reset;
+    property Current: Char read GetCurrent;
+  end;
+
   TArrayAdapter<T> = class(TInterfacedObject, IFluentEnumerableBase<T>)
   private
     FArray: TArray<T>;
@@ -87,26 +107,6 @@ type
     constructor Create(const AArray: TArray<T>);
     destructor Destroy; override;
     function GetEnumerator: IFluentEnumerator<T>;
-  end;
-
-  TStringAdapter = class(TInterfacedObject, IFluentEnumerableBase<char>)
-  private
-    FString: string;
-  public
-    constructor Create(const AString: string);
-    function GetEnumerator: IFluentEnumerator<char>;
-  end;
-
-  TStringEnumerator = class(TInterfacedObject, IFluentEnumerator<char>)
-  private
-    FString: string;
-    FIndex: Integer;
-  public
-    constructor Create(const AString: string);
-    function GetCurrent: char;
-    function MoveNext: Boolean;
-    procedure Reset;
-    property Current: char read GetCurrent;
   end;
 
   TNonGenericArrayAdapter<T> = class(TInterfacedObject, IFluentEnumerableBase<T>)
@@ -243,7 +243,7 @@ begin
   FString := AString;
 end;
 
-function TStringAdapter.GetEnumerator: IFluentEnumerator<char>;
+function TStringAdapter.GetEnumerator: IFluentEnumerator<Char>;
 begin
   Result := TStringEnumerator.Create(FString);
 end;

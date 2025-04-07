@@ -1710,6 +1710,7 @@ begin
 end;
 
 // TFluentConcatEnumerable<T>
+
 constructor TFluentConcatEnumerable<T>.Create(const ASource: IFluentEnumerableBase<T>;
   const ASecond: IFluentEnumerableBase<T>);
 begin
@@ -1723,6 +1724,7 @@ begin
 end;
 
 // TFluentConcatEnumerator<T>
+
 constructor TFluentConcatEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const ASecond: IFluentEnumerator<T>);
 begin
   FSource := ASource;

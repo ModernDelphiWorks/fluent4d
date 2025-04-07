@@ -262,7 +262,10 @@ function IFluentEnumerable<T>.OrderByDesc(const AComparer: TFunc<T, T, Integer>)
 begin
   Result := IFluentEnumerable<T>.Create(
     TFluentOrderByEnumerable<T>.Create(FEnumerator,
-      function(A, B: T): Integer begin Result := -AComparer(A, B); end),
+      function(A, B: T): Integer
+      begin
+        Result := -AComparer(A, B);
+      end),
     FFluentType,
     FComparer
   );
@@ -316,7 +319,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentMapEnumerable<T, TResult>.Create(FEnumerator, ASelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -325,7 +328,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentFlatMapEnumerable<T, TResult>.Create(FEnumerator, ASelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -493,7 +496,10 @@ function IFluentEnumerable<T>.Min: T;
 var
   LComparer: TFunc<T, T, Integer>;
 begin
-  LComparer := function(A, B: T): Integer begin Result := TComparer<T>.Default.Compare(A, B); end;
+  LComparer := function(A, B: T): Integer
+               begin
+                 Result := TComparer<T>.Default.Compare(A, B);
+               end;
   Result := Min(LComparer);
 end;
 
@@ -525,7 +531,10 @@ function IFluentEnumerable<T>.Max: T;
 var
   LComparer: TFunc<T, T, Integer>;
 begin
-  LComparer := function(A, B: T): Integer begin Result := TComparer<T>.Default.Compare(A, B); end;
+  LComparer := function(A, B: T): Integer
+               begin
+                 Result := TComparer<T>.Default.Compare(A, B);
+               end;
   Result := Max(LComparer);
 end;
 
@@ -535,8 +544,10 @@ var
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
       Exit(True);
+  end;
   Result := False;
 end;
 
@@ -546,8 +557,10 @@ var
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
+  begin
     if not APredicate(LEnum.Current) then
       Exit(False);
+  end;
   Result := True;
 end;
 
@@ -586,8 +599,10 @@ var
 begin
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
       Exit(LEnum.Current);
+  end;
   Result := Default(T);
 end;
 
@@ -601,11 +616,13 @@ begin
   LEnum := GetEnumerator;
   LHasValue := False;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
     begin
       LResult := LEnum.Current;
       LHasValue := True;
     end;
+  end;
   if not LHasValue then
     raise EInvalidOperation.Create('Sequence contains no matching element');
   Result := LResult;
@@ -621,11 +638,13 @@ begin
   LEnum := GetEnumerator;
   LHasValue := False;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
     begin
       LResult := LEnum.Current;
       LHasValue := True;
     end;
+  end;
   if not LHasValue then
     Result := Default(T)
   else
@@ -640,8 +659,10 @@ begin
   LEnum := GetEnumerator;
   LCount := 0;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
       Inc(LCount);
+  end;
   Result := LCount;
 end;
 
@@ -653,8 +674,10 @@ begin
   LEnum := GetEnumerator;
   LCount := 0;
   while LEnum.MoveNext do
+  begin
     if APredicate(LEnum.Current) then
       Inc(LCount);
+  end;
   Result := LCount;
 end;
 
@@ -744,7 +767,7 @@ begin
     TFluentGroupJoinEnumerable<T, TInner, TKey, TResult>.Create(
       FEnumerator, AInner.FEnumerator, AOuterKeySelector, AInnerKeySelector, AResultSelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -754,7 +777,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentZipEnumerable<T, TSecond, TResult>.Create(FEnumerator, ASecond.FEnumerator, AResultSelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -765,7 +788,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentJoinEnumerable<T, TInner, TKey, TResult>.Create(FEnumerator, AInner.FEnumerator, AOuterKeySelector, AInnerKeySelector, AResultSelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -775,7 +798,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentOfTypeEnumerable<T, TResult>.Create(FEnumerator, AIsType, AConverter),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -892,7 +915,7 @@ begin
   Result := IFluentEnumerable<TResult>.Create(
     TFluentSelectManyEnumerable<T, TResult>.Create(FEnumerator, ASelector),
     FFluentType
-    // FComparer não é propagado porque o tipo muda pra TResult
+    // FComparer is not propagated because the type changes to TResult
   );
 end;
 
@@ -1017,7 +1040,6 @@ function TFluentWrapper<TResult>.Value: IFluentEnumerable<TResult>;
 begin
   Result := FValue;
 end;
-
 
 { IFluentEnumerable<T>.TFluentCompare }
 
