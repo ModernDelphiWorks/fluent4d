@@ -2347,7 +2347,7 @@ begin
     Assert.IsTrue(LDict.IsEmpty, 'Dicionário deveria estar vazio');
   finally
 //    if LDict.Count = 0 then
-//      LStringList.Free; // Já foi Liberado manualmente no remove
+//      LStringList.Free; // Já foi Liberado auto no Remove()
   end;
 end;
 

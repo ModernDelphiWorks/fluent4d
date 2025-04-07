@@ -877,14 +877,11 @@ procedure TFluentList<T>._FreeItem(const AItem: T);
 var
   LPointer: Pointer;
 begin
-  if FOwnsList then
+  if FOwnerships and FIsValueObject then
   begin
-    if FOwnerships and FIsValueObject then
-    begin
-      LPointer := Pointer(@AItem);
-      if Assigned(LPointer) then
-        TObject(LPointer^).Free;
-    end;
+    LPointer := Pointer(@AItem);
+    if Assigned(LPointer) then
+      TObject(LPointer^).Free;
   end;
 end;
 
@@ -1118,14 +1115,11 @@ procedure TFluentDictionary<K, V>._FreeItem(const AItem: V);
 var
   LPointer: Pointer;
 begin
-  if FOwnsDict then
+  if FOwnerships and FIsValueObject then
   begin
-    if FOwnerships and FIsValueObject then
-    begin
-      LPointer := Pointer(@AItem);
-      if Assigned(LPointer) then
-        TObject(LPointer^).Free;
-    end;
+    LPointer := Pointer(@AItem);
+    if Assigned(LPointer) then
+      TObject(LPointer^).Free;
   end;
 end;
 
