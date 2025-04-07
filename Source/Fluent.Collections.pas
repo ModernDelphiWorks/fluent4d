@@ -162,7 +162,7 @@ type
   private
     FList: TList<T>;
     FOwnsList: Boolean;
-    FOwnsValues: Boolean;
+    FOwnerships: Boolean;
     FIsValueObject: Boolean;
     FOnNotify: TCollectionNotifyEvent<T>;
     function GetEnumerable: IFluentEnumerable<T>;
@@ -174,6 +174,7 @@ type
     function GetComparer: IComparer<T>;
     procedure SetOnNotify(const AValue: TCollectionNotifyEvent<T>);
     function GetOnNotify: TCollectionNotifyEvent<T>;
+    procedure _FreeItem(const AItem: T);
   public
     type
       TEmptyFunc = reference to function (const L, R: T): Boolean;
@@ -184,12 +185,12 @@ type
 {$IFNDEF NEXTGEN}
     class procedure Error(const AMsg: PResStringRec; const Data: NativeInt); overload;
 {$ENDIF}
-    constructor Create(const AOwnsValues: Boolean = False); overload;
-    constructor Create(const AComparer: IComparer<T>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const ACollection: TEnumerable<T>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const ACollection: IEnumerable<T>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const AValues: array of T; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const AList: TList<T>; const AOwnsList: Boolean = False; const AOwnsValues: Boolean = False); overload;
+    constructor Create(const AFOwnerships: Boolean = False); overload;
+    constructor Create(const AComparer: IComparer<T>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const ACollection: TEnumerable<T>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const ACollection: IEnumerable<T>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const AValues: array of T; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const AList: TList<T>; const AOwnsList: Boolean = False; const AFOwnerships: Boolean = False); overload;
     destructor Destroy; override;
     procedure AddRange(const AValues: array of T); overload;
     procedure AddRange(const ACollection: IEnumerable<T>); overload;
@@ -294,7 +295,7 @@ type
   private
     FDict: TDictionary<K, V>;
     FOwnsDict: Boolean;
-    FOwnsValues: Boolean;
+    FOwnerships: Boolean;
     FIsValueObject: Boolean;
     FOnKeyNotify: TCollectionNotifyEvent<K>;
     FOnValueNotify: TCollectionNotifyEvent<V>;
@@ -312,18 +313,19 @@ type
     procedure SetItem(const AKey: K; const AValue: V);
     procedure SetOnKeyNotify(const AValue: TCollectionNotifyEvent<K>);
     procedure SetOnValueNotify(const AValue: TCollectionNotifyEvent<V>);
+    procedure _FreeItem(const AItem: V);
   public
     class function From(const ADict: TDictionary<K, V>): IFluentEnumerable<TPair<K, V>>; overload; static;
     class function From(const AArray: TArray<TPair<K, V>>): IFluentEnumerable<TPair<K, V>>; overload; static;
-    constructor Create(const AOwnsValues: Boolean = False); overload;
-    constructor Create(const Capacity: NativeInt; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const Capacity: NativeInt; const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const ACollection: TEnumerable<TPair<K, V>>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const ACollection: TEnumerable<TPair<K, V>>; const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const AItems: array of TPair<K, V>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const AItems: array of TPair<K, V>; const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean = False); overload;
-    constructor Create(const ADict: TDictionary<K, V>; const AOwnsDict: Boolean = False; const AOwnsValues: Boolean = False); overload;
+    constructor Create(const AFOwnerships: Boolean = False); overload;
+    constructor Create(const Capacity: NativeInt; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const Capacity: NativeInt; const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const ACollection: TEnumerable<TPair<K, V>>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const ACollection: TEnumerable<TPair<K, V>>; const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const AItems: array of TPair<K, V>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const AItems: array of TPair<K, V>; const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean = False); overload;
+    constructor Create(const ADict: TDictionary<K, V>; const AOwnsDict: Boolean = False; const AFOwnerships: Boolean = False); overload;
     destructor Destroy; override;
     procedure TrimExcess;
     procedure AddRange(const Dictionary: TDictionary<K, V>); overload;
@@ -536,72 +538,67 @@ end;
 
 { TFluentList<T> }
 
-constructor TFluentList<T>.Create(const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const AFOwnerships: Boolean);
 begin
   FList := TList<T>.Create;
   FOwnsList := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
 end;
 
-constructor TFluentList<T>.Create(const AComparer: IComparer<T>; const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const AComparer: IComparer<T>; const AFOwnerships: Boolean);
 begin
   FList := TList<T>.Create(AComparer);
   FOwnsList := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
 end;
 
-constructor TFluentList<T>.Create(const ACollection: TEnumerable<T>; const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const ACollection: TEnumerable<T>; const AFOwnerships: Boolean);
 begin
   FList := TList<T>.Create(ACollection);
   FOwnsList := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
 end;
 
-constructor TFluentList<T>.Create(const ACollection: IEnumerable<T>; const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const ACollection: IEnumerable<T>; const AFOwnerships: Boolean);
 begin
   FList := TList<T>.Create(ACollection);
   FOwnsList := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
 end;
 
-constructor TFluentList<T>.Create(const AValues: array of T; const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const AValues: array of T; const AFOwnerships: Boolean);
 begin
   FList := TList<T>.Create;
   FOwnsList := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
   AddRange(AValues);
 end;
 
-constructor TFluentList<T>.Create(const AList: TList<T>; const AOwnsList: Boolean; const AOwnsValues: Boolean);
+constructor TFluentList<T>.Create(const AList: TList<T>; const AOwnsList: Boolean; const AFOwnerships: Boolean);
 begin
   if AList = nil then
     raise EArgumentNilException.Create('AList cannot be nil');
   FList := AList;
   FOwnsList := AOwnsList;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(T))^.Kind = tkClass;
 end;
 
 destructor TFluentList<T>.Destroy;
 var
   LValue: T;
-  LPointer: Pointer;
 begin
   if FOwnsList then
   begin
-    if FOwnsValues and FIsValueObject then
+    if FOwnerships and FIsValueObject then
     begin
       for LValue in FList do
-      begin
-        LPointer := Pointer(@LValue);
-        if Assigned(LPointer) then
-          TObject(Pointer(@LValue)^).Free;
-      end;
+        _FreeItem(LValue);
     end;
     FList.Free;
   end;
@@ -676,22 +673,53 @@ begin
 end;
 
 function TFluentList<T>.Remove(const AValue: T): Boolean;
+var
+  LIndex: NativeInt;
 begin
-  Result := FList.Remove(AValue) > -1;
+  LIndex := FList.IndexOf(AValue);
+  if LIndex >= 0 then
+  begin
+    _FreeItem(FList[LIndex]);
+    FList.Delete(LIndex);
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 function TFluentList<T>.RemoveItem(const AValue: T; Direction: TDirection): NativeInt;
+var
+  LIndex: NativeInt;
 begin
-  Result := FList.RemoveItem(AValue, Direction);
+  LIndex := FList.IndexOfItem(AValue, Direction);
+  if LIndex >= 0 then
+  begin
+    _FreeItem(FList[LIndex]);
+    FList.Delete(LIndex);
+  end;
+  Result := LIndex;
 end;
 
 procedure TFluentList<T>.Delete(const AIndex: NativeInt);
 begin
-  FList.Delete(AIndex);
+  if (AIndex >= 0) and (AIndex < FList.Count) then
+  begin
+    _FreeItem(FList[AIndex]);
+    FList.Delete(AIndex);
+  end
+  else
+    raise EArgumentOutOfRangeException.Create('Index out of range');
 end;
 
 procedure TFluentList<T>.DeleteRange(const AIndex, ACount: NativeInt);
+var
+  LFor: NativeInt;
 begin
+  if FOwnerships and FIsValueObject then
+  begin
+    for LFor := AIndex to AIndex + ACount - 1 do
+      _FreeItem(FList[LFor]);
+  end;
   FList.DeleteRange(AIndex, ACount);
 end;
 
@@ -731,7 +759,14 @@ begin
 end;
 
 procedure TFluentList<T>.Clear;
+var
+  LValue: T;
 begin
+  if FOwnerships and FIsValueObject then
+  begin
+    for LValue in FList do
+      _FreeItem(LValue);
+  end;
   FList.Clear;
 end;
 
@@ -838,6 +873,21 @@ begin
   FList.TrimExcess;
 end;
 
+procedure TFluentList<T>._FreeItem(const AItem: T);
+var
+  LPointer: Pointer;
+begin
+  if FOwnsList then
+  begin
+    if FOwnerships and FIsValueObject then
+    begin
+      LPointer := Pointer(@AItem);
+      if Assigned(LPointer) then
+        TObject(LPointer^).Free;
+    end;
+  end;
+end;
+
 function TFluentList<T>.ToArray: TArray<T>;
 begin
   Result := FList.ToArray;
@@ -914,102 +964,97 @@ end;
 
 { TFluentDictionary<K, V> }
 
-constructor TFluentDictionary<K, V>.Create(const AOwnsValues: Boolean);
+constructor TFluentDictionary<K, V>.Create(const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create;
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const Capacity: NativeInt;
-  const AOwnsValues: Boolean);
+  const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(Capacity);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const Comparer: IEqualityComparer<K>;
-  const AOwnsValues: Boolean);
+  const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(Comparer);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const Capacity: NativeInt;
-  const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean);
+  const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(Capacity, Comparer);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const ACollection: TEnumerable<TPair<K, V>>;
-  const AOwnsValues: Boolean);
+  const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(ACollection);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const ACollection: TEnumerable<TPair<K, V>>;
-  const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean);
+  const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(ACollection, Comparer);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
-constructor TFluentDictionary<K, V>.Create(const AItems: array of TPair<K, V>; const AOwnsValues: Boolean);
+constructor TFluentDictionary<K, V>.Create(const AItems: array of TPair<K, V>; const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(AItems);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const AItems: array of TPair<K, V>;
-  const Comparer: IEqualityComparer<K>; const AOwnsValues: Boolean);
+  const Comparer: IEqualityComparer<K>; const AFOwnerships: Boolean);
 begin
   FDict := TDictionary<K, V>.Create(AItems, Comparer);
   FOwnsDict := True;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 constructor TFluentDictionary<K, V>.Create(const ADict: TDictionary<K, V>;
-  const AOwnsDict: Boolean; const AOwnsValues: Boolean);
+  const AOwnsDict: Boolean; const AFOwnerships: Boolean);
 begin
   if ADict = nil then
     raise EArgumentNilException.Create('ADict cannot be nil');
   FDict := ADict;
   FOwnsDict := AOwnsDict;
-  FOwnsValues := AOwnsValues;
+  FOwnerships := AFOwnerships;
   FIsValueObject := PTypeInfo(TypeInfo(V))^.Kind = tkClass;
 end;
 
 destructor TFluentDictionary<K, V>.Destroy;
 var
   LValue: V;
-  LPointer: Pointer;
 begin
   if FOwnsDict then
   begin
-    if FOwnsValues and FIsValueObject then
+    if FOwnerships and FIsValueObject then
     begin
       for LValue in FDict.Values do
-      begin
-        LPointer := Pointer(@LValue);
-        if Assigned(LPointer) then
-          TObject(Pointer(@LValue)^).Free;
-      end;
+        _FreeItem(LValue);
     end;
     FDict.Free;
   end;
@@ -1022,22 +1067,40 @@ begin
 end;
 
 function TFluentDictionary<K, V>.Remove(const AKey: K): Boolean;
+var
+  LValue: V;
 begin
-  Result := True;
-  try
+  if FDict.ContainsKey(AKey) then
+  begin
+    LValue := FDict[AKey];
+    _FreeItem(LValue);
     FDict.Remove(AKey);
-  except
+    Result := True;
+  end
+  else
     Result := False;
-  end;
 end;
 
 function TFluentDictionary<K, V>.ExtractPair(const AKey: K): TPair<K, V>;
 begin
-  Result := FDict.ExtractPair(AKey);
+  if FDict.ContainsKey(AKey) then
+  begin
+    Result := FDict.ExtractPair(AKey);
+    _FreeItem(Result.Value);
+  end
+  else
+    Result := TPair<K, V>.Create(Default(K), Default(V));
 end;
 
 procedure TFluentDictionary<K, V>.Clear;
+var
+  LValue: V;
 begin
+  if FOwnerships and FIsValueObject then
+  begin
+    for LValue in FDict.Values do
+      _FreeItem(LValue);
+  end;
   FDict.Clear;
 end;
 
@@ -1049,6 +1112,21 @@ end;
 function TFluentDictionary<K, V>.TryGetValue(const AKey: K; var AValue: V): Boolean;
 begin
   Result := FDict.TryGetValue(AKey, AValue);
+end;
+
+procedure TFluentDictionary<K, V>._FreeItem(const AItem: V);
+var
+  LPointer: Pointer;
+begin
+  if FOwnsDict then
+  begin
+    if FOwnerships and FIsValueObject then
+    begin
+      LPointer := Pointer(@AItem);
+      if Assigned(LPointer) then
+        TObject(LPointer^).Free;
+    end;
+  end;
 end;
 
 procedure TFluentDictionary<K, V>.Add(const AItem: TPair<K, V>);
@@ -1205,6 +1283,7 @@ begin
     LValue := FDict[AItem.Key];
     if TEqualityComparer<V>.Default.Equals(LValue, AItem.Value) then
     begin
+      _FreeItem(LValue);
       FDict.Remove(AItem.Key);
       Result := True;
     end

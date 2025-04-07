@@ -196,9 +196,18 @@ type
     procedure TestContainsFluent;
     [Test]
     procedure TestToList;
+    [Test]
+    procedure TestOwnsValuesWithObjects;
+    [Test]
+    procedure TestOwnsValuesWithStrings;
+    [Test]
+    procedure TestBasicFunctionality;
   end;
 
 implementation
+
+uses
+  System.Classes;
 
 { TDictionaryHelperTest }
 
@@ -1826,6 +1835,46 @@ begin
   end;
 end;
 
+procedure TDictionaryHelperTest.TestOwnsValuesWithObjects;
+var
+  LStringList1, LStringList2: TStringList;
+  LDict: IFluentDictionary<Integer, TStringList>;
+  LDictStr: IFluentDictionary<Integer, String>;
+begin
+  LDict := TFluentDictionary<Integer, TStringList>.Create(True); // OwnsValues = True
+  LDictStr := TFluentDictionary<Integer, String>.Create(True);
+
+  // Adiciona TStringList ao dicionário
+  LStringList1 := TStringList.Create;
+  LStringList2 := TStringList.Create;
+  try
+    LDict.Add(1, LStringList1);
+    LDict.Add(2, LStringList2);
+    Assert.AreEqual(2, LDict.Count, 'Dicionário deveria ter 2 itens antes da liberação');
+
+    // O dicionário assume a posse, então não liberamos manualmente aqui
+  except
+    LStringList1.Free;
+    LStringList2.Free;
+    raise;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestOwnsValuesWithStrings;
+var
+  LDictStr: IFluentDictionary<Integer, String>;
+begin
+  LDictStr := TFluentDictionary<Integer, String>.Create(True);
+
+  // Adiciona strings ao dicionário
+  LDictStr.Add(1, 'One');
+  LDictStr.Add(2, 'Two');
+  Assert.AreEqual(2, LDictStr.Count, 'Dicionário deveria ter 2 itens');
+
+  // O dicionário não deve tentar liberar strings
+  // O teste passa se não houver erro de acesso inválido
+end;
+
 procedure TDictionaryHelperTest.TestMin;
 var
   LDictionary: TFluentDictionary<Integer, String>;
@@ -2271,6 +2320,34 @@ begin
     Assert.AreEqual(Double(2.0), LAverage, 'Deveria calcular a média das chaves (1 + 2 + 3) / 3 = 2.0');
   finally
     LDictionary.Free;
+  end;
+end;
+
+procedure TDictionaryHelperTest.TestBasicFunctionality;
+var
+  LDict: IFluentDictionary<Integer, TStringList>;
+  LPair: TPair<Integer, TStringList>;
+  LStringList: TStringList;
+begin
+  LDict := TFluentDictionary<Integer, TStringList>.Create(True); // OwnsValues = True
+
+  // Adiciona um item
+  LStringList := TStringList.Create;
+  try
+    LDict.Add(1, LStringList);
+    Assert.AreEqual(1, LDict.Count, 'Count deveria ser 1 após adicionar um item');
+
+    // Verifica Contains
+    LPair := TPair<Integer, TStringList>.Create(1, LStringList);
+    Assert.IsTrue(LDict.Contains(LPair), 'Dicionário deveria conter o par adicionado');
+
+    // Remove o item
+    Assert.IsTrue(LDict.Remove(LPair), 'Remove deveria retornar True');
+    Assert.AreEqual(0, LDict.Count, 'Count deveria ser 0 após remover');
+    Assert.IsTrue(LDict.IsEmpty, 'Dicionário deveria estar vazio');
+  finally
+//    if LDict.Count = 0 then
+//      LStringList.Free; // Já foi Liberado manualmente no remove
   end;
 end;
 
