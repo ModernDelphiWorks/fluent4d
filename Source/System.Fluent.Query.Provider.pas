@@ -53,8 +53,6 @@ uses
   DBEngine.FactoryInterfaces,
   System.Fluent,
   System.Fluent.Core,
-  System.Fluent.Collections,
-  System.Fluent.Adapters,
   System.Fluent.Queryable,
   System.Fluent.Expression;
 
@@ -199,8 +197,8 @@ type
     function Concat(const AValue: array of string): IFluentQueryProvider<T>;
     function Sum(const AColumn: string; const AAlias: string = ''): IFluentQueryProvider<T>;
     function Average(const AColumn: string; const AAlias: string = ''): IFluentQueryProvider<T>;
-    function ToArray: TFluentArray<T>;
-    function ToList: TFluentList<T>;
+    function ToArray: IFluentArray<T>;
+    function ToList: IFluentList<T>;
     function AsString: string;
     function Database: TDBEngineDriver;
     function Connection: IDBConnection;
@@ -1170,12 +1168,12 @@ begin
   Result := Self;
 end;
 
-function TFluentQueryProvider<T>.ToArray: TFluentArray<T>;
+function TFluentQueryProvider<T>.ToArray: IFluentArray<T>;
 begin
   Result := ToList.ToArray;
 end;
 
-function TFluentQueryProvider<T>.ToList: TFluentList<T>;
+function TFluentQueryProvider<T>.ToList: IFluentList<T>;
 var
   LSQL: string;
   LDataSet: IDBDataSet;

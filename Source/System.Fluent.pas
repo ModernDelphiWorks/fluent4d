@@ -33,18 +33,20 @@ interface
 uses
   Rtti,
   Math,
+  Types,
   Classes,
   StrUtils,
   SysUtils,
   Generics.Collections,
   Generics.Defaults,
-  System.Fluent.Core,
-  System.Fluent.Interfaces;
+  System.Fluent.Core;
 
 type
   IFluentEnumerableAdapter<TResult> = interface;
   IGroupByEnumerable<TKey, T> = interface;
   IGrouping<TKey, T> = interface;
+  IFluentArray<T> = interface;
+  IFluentList<T> = interface;
 //  IFluentChunkResult<T> = interface;
 
   IFluentEnumerator<T> = interface(IInterface)
@@ -133,8 +135,6 @@ type
     function Count(const APredicate: TFunc<T, Boolean>): Integer; overload;
     function LongCount: Int64; overload;
     function LongCount(const APredicate: TFunc<T, Boolean>): Int64; overload;
-    function ToArray: TArray<T>;
-    function ToList: TList<T>;
     function Zip<TSecond, TResult>(const ASecond: IFluentEnumerable<TSecond>;
       const AResultSelector: TFunc<T, TSecond, TResult>): IFluentEnumerable<TResult>;
     function OfType<TResult>(const AIsType: TFunc<T, Boolean>; const AConverter: TFunc<T, TResult>): IFluentEnumerable<TResult>;
@@ -251,6 +251,15 @@ type
     function TryGetNonEnumeratedCount(out ACount: Integer): Boolean;
     function ThenBy<TKey>(const AKeySelector: TFunc<T, TKey>): IFluentEnumerable<T>;
     function ThenByDescending<TKey>(const AKeySelector: TFunc<T, TKey>): IFluentEnumerable<T>;
+    function ToArray: IFluentArray<T>;
+    function ToList: IFluentList<T>;
+  end;
+
+  IFluentArray<T> = interface(IInterface)
+    ['{E3DF6D61-1A52-466E-8B16-CF7AAC574A02}']
+    function _GetArray: TArray<T>;
+    function AsEnumerable: IFluentEnumerable<T>;
+    property ArrayData: TArray<T> read _GetArray;
   end;
 
   IGroupByEnumerable<TKey, T> = interface(IInterface)
@@ -290,9 +299,115 @@ type
     function AsEnumerable: IFluentEnumerable<TResult>;
   end;
 
+  ICollections<T> = interface(IFluentEnumerableBase<T>)
+    ['{1F1B87DA-2722-40E3-899F-5622CA9BE807}']
+    function Count: NativeInt;
+    function Contains(const AItem: T): Boolean;
+    function Remove(const AItem: T): Boolean;
+    function AsEnumerable: IFluentEnumerable<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
+    procedure Add(const AItem: T);
+    procedure CopyTo(AArray: array of T; AIndex: Integer);
+    procedure Clear;
+  end;
+
+  IFluentList<T> = interface(ICollections<T>)
+    ['{2749C02A-9973-4747-A4D3-29376DFD6242}']
+    function GetCapacity: NativeInt;
+    procedure SetCapacity(const AValue: NativeInt);
+    function GetItem(AIndex: NativeInt): T;
+    procedure SetItem(AIndex: NativeInt; const AValue: T);
+    function GetList: IFluentArray<T>;
+    function GetComparer: IComparer<T>;
+    procedure SetOnNotify(const AValue: TCollectionNotifyEvent<T>);
+    function GetOnNotify: TCollectionNotifyEvent<T>;
+    procedure AddRange(const AValues: array of T); overload;
+    procedure AddRange(const ACollection: IEnumerable<T>); overload;
+    procedure AddRange(const ACollection: TEnumerable<T>); overload;
+    procedure Insert(const AIndex: NativeInt; const AValue: T);
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T; ACount: NativeInt); overload;
+    procedure InsertRange(const AIndex: NativeInt; const AValues: array of T); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: IEnumerable<T>); overload;
+    procedure InsertRange(const AIndex: NativeInt; const ACollection: TEnumerable<T>); overload;
+    procedure Pack;
+    procedure Delete(const AIndex: NativeInt);
+    procedure DeleteRange(const AIndex, ACount: NativeInt);
+    procedure Exchange(const AIndex1, AIndex2: NativeInt);
+    procedure Move(const ACurIndex, ANewIndex: NativeInt);
+    procedure Reverse;
+    procedure Sort; overload;
+    procedure Sort(const AComparer: IComparer<T>); overload;
+    procedure Sort(const AComparer: IComparer<T>; AIndex, ACount: NativeInt); overload;
+    procedure TrimExcess;
+    function RemoveItem(const AValue: T; Direction: TDirection): NativeInt;
+    function ExtractItem(const AValue: T; Direction: TDirection): T;
+    function Extract(const AValue: T): T;
+    function ExtractAt(constIndex: NativeInt): T;
+    function First: T;
+    function Last: T;
+    function Expand: IFluentList<T>;
+    function IndexOf(const AValue: T): NativeInt;
+    function IndexOfItem(const AValue: T; Direction: TDirection): NativeInt;
+    function LastIndexOf(const AValue: T): NativeInt;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>): Boolean; overload;
+    function BinarySearch(const AItem: T; out FoundIndex: NativeInt; const AComparer: IComparer<T>; AIndex, Count: NativeInt): Boolean; overload;
+    function IsEmpty: Boolean;
+    function ToArray: IFluentArray<T>;
+    property Capacity: NativeInt read GetCapacity write SetCapacity;
+    property AItems[AIndex: NativeInt]: T read GetItem write SetItem; default;
+    property List: IFluentArray<T> read GetList;
+    property AComparer: IComparer<T> read GetComparer;
+    property OnNotify: TCollectionNotifyEvent<T> read GetOnNotify write SetOnNotify;
+  end;
+
+  IFluentDictionary<K, V> = interface(ICollections<TPair<K, V>>)
+    ['{CF242859-D62D-4277-91B3-D4E389793E7C}']
+    procedure SetCapacity(const AValue: NativeInt);
+    procedure SetItem(const AKey: K; const AValue: V);
+    procedure SetOnKeyNotify(const AValue: TCollectionNotifyEvent<K>);
+    procedure SetOnValueNotify(const AValue: TCollectionNotifyEvent<V>);
+    function GetCapacity: NativeInt;
+    function GetItem(const AKey: K): V;
+    function GetGrowThreshold: NativeInt;
+    function GetCollisions: NativeInt;
+    function GetKeys: TDictionary<K, V>.TKeyCollection;
+    function GetValues: TDictionary<K, V>.TValueCollection;
+    function GetComparer: IEqualityComparer<K>;
+    function GetOnKeyNotify: TCollectionNotifyEvent<K>;
+    function GetOnValueNotify: TCollectionNotifyEvent<V>;
+    procedure TrimExcess;
+    procedure AddRange(const Dictionary: TDictionary<K, V>); overload;
+    procedure AddRange(const AItems: TEnumerable<TPair<K, V>>); overload;
+    procedure AddOrSetValue(const AKey: K; const AValue: V);
+    procedure Clear;
+    procedure Add(const AKey: K; const AValue: V); overload;
+    procedure Add(const AItem: TPair<K, V>); overload;
+    function Remove(const AKey: K): Boolean; overload;
+    function Remove(const AItem: TPair<K, V>): Boolean; overload;
+    function Contains(const AValue: TPair<K, V>): Boolean;
+    function Count: NativeInt;
+    function ExtractPair(const AKey: K): TPair<K, V>;
+    function TryGetValue(const AKey: K; var AValue: V): Boolean;
+    function TryAdd(const AKey: K; const AValue: V): Boolean;
+    function ContainsKey(const AKey: K): Boolean;
+    function ContainsValue(const AValue: V): Boolean;
+    function IsEmpty: Boolean;
+    function ToArray: IFluentArray<TPair<K, V>>;
+    property GrowThreshold: NativeInt read GetGrowThreshold;
+    property Collisions: NativeInt read GetCollisions;
+    property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
+    property Values: TDictionary<K, V>.TValueCollection read GetValues;
+    property AComparer: IEqualityComparer<K> read GetComparer;
+    property Items[const AKey: K]: V read GetItem write SetItem; default;
+    property OnKeyNotify: TCollectionNotifyEvent<K> read GetOnKeyNotify write SetOnKeyNotify;
+    property OnValueNotify: TCollectionNotifyEvent<V> read GetOnValueNotify write SetOnValueNotify;
+  end;
+
 implementation
 
 uses
+  System.Fluent.Collections,
   System.Fluent.Adapters,
   System.Fluent.SkipWhile,
   System.Fluent.Where,
@@ -1290,19 +1405,19 @@ begin
   );
 end;
 
-function IFluentEnumerable<T>.ToArray: TArray<T>;
+function IFluentEnumerable<T>.ToArray: IFluentArray<T>;
 var
   LEnum: IFluentEnumerator<T>;
-  LList: TList<T>;
+  LList: IFluentList<T>;
 begin
-  LList := TList<T>.Create;
+  LList := TFluentList<T>.Create;
   try
     LEnum := GetEnumerator;
     while LEnum.MoveNext do
       LList.Add(LEnum.Current);
     Result := LList.ToArray;
   finally
-    LList.Free;
+    LList := nil;
   end;
 end;
 
@@ -1337,12 +1452,12 @@ begin
   end;
 end;
 
-function IFluentEnumerable<T>.ToList: TList<T>;
+function IFluentEnumerable<T>.ToList: IFluentList<T>;
 var
-  LList: TList<T>;
+  LList: IFluentList<T>;
   LEnum: IFluentEnumerator<T>;
 begin
-  LList := TList<T>.Create;
+  LList := TFluentList<T>.Create;
   LEnum := GetEnumerator;
   while LEnum.MoveNext do
     LList.Add(LEnum.Current);

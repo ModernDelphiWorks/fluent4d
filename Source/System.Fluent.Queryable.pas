@@ -46,8 +46,6 @@ uses
   DBEngine.FactoryInterfaces,
   System.Fluent,
   System.Fluent.Core,
-  System.Fluent.Collections,
-  System.Fluent.Interfaces,
   System.Fluent.Expression;
 
 const
@@ -194,8 +192,8 @@ type
     function Month(const AValue: string): IFluentQueryProvider<T>;
     function Year(const AValue: string): IFluentQueryProvider<T>;
     function Concat(const AValue: array of string): IFluentQueryProvider<T>;
-    function ToArray: TFluentArray<T>;
-    function ToList: TFluentList<T>;
+    function ToArray: IFluentArray<T>;
+    function ToList: IFluentList<T>;
     function AsString: string;
     function Database: TDBEngineDriver;
     function Connection: IDBConnection;
@@ -232,7 +230,7 @@ type
     FExpression: IFluentQueryExpression;
     function _GetEnumerable: IFluentEnumerable<T>;
     function _ExecuteScalar<TResult>(const ASql: string): TResult;
-    function _ExecuteList(const ASql: string): TFluentList<T>;
+    function _ExecuteList(const ASql: string): IFluentList<T>;
     function _InitializeICQL: IFluentQueryProvider<T>;
     function _GetDriverDatabase(const ADatabase: TDBEngineDriver): TCQueryDriver;
   public
@@ -424,7 +422,7 @@ var
   LParserObject: TFluentParseObjectDataSet<TResult>;
   LContext: TRttiContext;
   LType: TRttiType;
-  LList: TFluentList<TResult>;
+  LList: IFluentList<TResult>;
 begin
   LSQL := ASql;
   if LSQL.IsEmpty then
@@ -471,14 +469,13 @@ begin
       Result := LList[0];
     finally
       LContext.Free;
-      LList.Free;
     end;
   finally
     LDataSet.Close;
   end;
 end;
 
-function IFluentQueryable<T>._ExecuteList(const ASql: string): TFluentList<T>;
+function IFluentQueryable<T>._ExecuteList(const ASql: string): IFluentList<T>;
 begin
   Result := FProvider.ToList;
 end;
@@ -769,13 +766,14 @@ begin
   if LInnerKeyName.IsEmpty then
     raise EInvalidOperation.Create('Could not extract inner key column name');
 
-  LInnerTableName := AInner.FProvider.CQuery.Select.Name;
+  LInnerTableName := AInner.FProvider.CQuery.Select.TableNames[0].Serialize;
   if LInnerTableName.IsEmpty then
     raise EInvalidOperation.Create('Could not extract inner table name');
 
+
+  FProvider.CQuery.Select.Columns.Clear;
   FProvider.InnerJoin(LInnerTableName);
   FProvider.OnCond(LOuterKeyName + ' = ' + LInnerKeyName);
-  FProvider.Select;
   for LExpression in AResultColumns do
   begin
     if not Assigned(LExpression) then
@@ -785,14 +783,18 @@ begin
     if LColumnName.IsEmpty then
       raise EInvalidOperation.Create('Could not extract result column name');
 
-    FProvider.Select(LColumnName);
+    FProvider.CQuery.Select.Columns.Add.Name := LColumnName;
   end;
   LNewProvider := TFluentQueryProvider<TResult>.TStrictPrivateCreate<TResult>
                                                .CreateProvider(FProvider.Database,
                                                                FProvider.Connection,
                                                                FProvider.CQuery);
   LJoinQuery := TFluentJoinQueryable<TInner, TResult, T>.Create(LNewProvider);
-  Result := LJoinQuery.AsQueryable;
+  try
+    Result := LJoinQuery.AsQueryable;
+  finally
+    LJoinQuery.Free;
+  end;
 end;
 
 function IFluentQueryable<T>.Distinct: IFluentQueryable<T>;
@@ -1065,7 +1067,7 @@ end;
 function IFluentQueryable<T>.FirstOrDefault(const AExpression: IFluentQueryExpression): T;
 begin
   FProvider.Where(AExpression.Serialize);
-  FProvider.Skip(1);
+  FProvider.First(1);
   try
     Result := _ExecuteScalar<T>(FQueryable.BuildQuery);
   except

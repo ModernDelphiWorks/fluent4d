@@ -38,6 +38,7 @@ uses
   SysUtils,
   Generics.Collections,
   DBEngine.FactoryInterfaces,
+  System.Fluent,
   System.Fluent.Collections,
   System.Fluent.Tuple;
 
@@ -147,13 +148,13 @@ end;
 
 function TFluentParseObjectDataSet<T>.ToArray(const ADataSet: IDBDataSet): TFluentArray<T>;
 var
-  LList: TFluentList<T>;
+  LList: IFluentList<T>;
 begin
   LList := _ParseDataSet(ADataSet);
   try
     Result := TFluentArray<T>.Create(LList.ToArray.ArrayData);
   finally
-    LList.Free;
+    LList := nil;
   end;
 end;
 
@@ -162,7 +163,7 @@ function TFluentParseObjectDataSet<T>.ToDictionary<TKey, TValue>(
   const AKeySelector: TFunc<T, TKey>;
   const AValueSelector: TFunc<T, TValue>): TFluentDictionary<TKey, TValue>;
 var
-  LList: TFluentList<T>;
+  LList: IFluentList<T>;
   LItem: T;
 begin
   LList := _ParseDataSet(ADataSet);
@@ -176,7 +177,7 @@ begin
       raise;
     end;
   finally
-    LList.Free;
+    LList := nil;
   end;
 end;
 
@@ -320,13 +321,13 @@ end;
 
 function TFluentParseScalarDataSet<T>.ToArray(const ADataSet: IDBDataSet): TFluentArray<T>;
 var
-  LList: TFluentList<T>;
+  LList: IFluentList<T>;
 begin
   LList := _ParseDataSet(ADataSet);
   try
     Result := TFluentArray<T>.Create(LList.ToArray.ArrayData);
   finally
-    LList.Free;
+    LList := nil;
   end;
 end;
 
@@ -335,7 +336,7 @@ function TFluentParseScalarDataSet<T>.ToDictionary<TKey, TValue>(
   const AKeySelector: TFunc<T, TKey>;
   const AValueSelector: TFunc<T, TValue>): TFluentDictionary<TKey, TValue>;
 var
-  LList: TFluentList<T>;
+  LList: IFluentList<T>;
   LItem: T;
 begin
   LList := _ParseDataSet(ADataSet);
@@ -349,7 +350,7 @@ begin
       raise;
     end;
   finally
-    LList.Free;
+    LList := nil;
   end;
 end;
 

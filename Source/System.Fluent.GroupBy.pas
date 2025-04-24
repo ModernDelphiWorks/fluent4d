@@ -42,8 +42,6 @@ uses
   Generics.Collections,
   Generics.Defaults,
   System.Fluent.Core,
-  System.Fluent.Collections,
-  System.Fluent.Adapters,
   System.Fluent;
 
 type
@@ -175,7 +173,9 @@ type
 implementation
 
 uses
-  System.Fluent.Tuple;
+  System.Fluent.Tuple,
+  System.Fluent.Adapters,
+  System.Fluent.Collections;
 
 { TFluentGroupByEnumerable<TKey, T> }
 

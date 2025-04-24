@@ -144,7 +144,6 @@
         <DCCReference Include="..\Source\System.Fluent.Parse.pas"/>
         <DCCReference Include="..\Source\Core\System.Fluent.Tuple.pas"/>
         <DCCReference Include="..\Source\Core\System.Fluent.Objects.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Interfaces.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Expression.pas"/>
         <DCCReference Include="..\Source\Core\System.Fluent.SafeTry.pas"/>
         <BuildConfiguration Include="Base">

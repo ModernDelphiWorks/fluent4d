@@ -226,7 +226,9 @@ end;
 
 function TFluentJoinQueryable<TInner, TResult, T>.AsQueryable: IFluentQueryable<TResult>;
 begin
-  Result := IFluentQueryable<TResult>.Create(Self);
+  Result := IFluentQueryable<TResult>.CreateForDatabase(FProvider.Database,
+                                                        FProvider.Connection,
+                                                        FProvider.CQuery);
 end;
 {$ENDIF}
 
