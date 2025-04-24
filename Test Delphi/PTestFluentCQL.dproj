@@ -1,15 +1,15 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{F783956F-9FB8-442E-AC51-E19379A69174}</ProjectGuid>
+        <ProjectGuid>{CDB97D8F-09B8-4625-B31B-E5D3CA14C168}</ProjectGuid>
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">PTestFluentCQL</ProjectName>
+        <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
-        <MainSource>PTestFluentList.dpr</MainSource>
-        <ProjectName Condition="'$(ProjectName)'==''">PTestFluentList</ProjectName>
+        <MainSource>PTestFluentCQL.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -35,12 +35,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -52,46 +46,33 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_E>false</DCC_E>
         <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <UsingDelphiRTL>true</UsingDelphiRTL>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
-        <DCC_UnitSearchPath>$(DUnitX);..\..\CQuery4D\Source\Core;..\..\CQuery4D\Source\Drivers;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>PTestFluentList</SanitizedProjectName>
+        <DCC_UnitSearchPath>$(DUnitX);..\..\CQuery4D\Source\Core;..\..\CQuery4D\Source\Drivers;..\..\DBEngine4D\Source\Core;..\..\DBEngine4D\Source\Drivers;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1046</VerInfo_Locale>
+        <SanitizedProjectName>PTestFluentCQL</SanitizedProjectName>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_Define>FullDebugMode;EnableMemoryLeakReporting;QUERYABLE;$(DCC_Define)</DCC_Define>
         <DCC_MapFile>3</DCC_MapFile>
-        <DCC_Define>FullDebugMode; EnableMemoryLeakReporting;$(DCC_Define)</DCC_Define>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;vcldb;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;frce;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;fmxobj;bindcompvclsmp;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;Skia.Package.RTL;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;Skia.Package.FMX;fmxdae;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;DBEBrConnectionFireDAC;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;Skia.Package.VCL;vcldb;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;inetstn;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;fmxobj;bindcompvclsmp;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
+        <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;vcldb;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;fmxobj;bindcompvclsmp;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;vcltouch;fmxase;DBXOdbcDriver;dbrtl;FireDACDBXDriver;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;Skia.Package.VCL;vcldb;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;inetstn;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;fmxobj;bindcompvclsmp;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -106,11 +87,6 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -120,54 +96,57 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>..\..\ECL\ECL\Test Delphi\EclbrSystem\(None)</Manifest_File>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UTestFluent.List.pas"/>
+        <DCCReference Include="UTestFluent4D.CQL.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Adapters.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Cast.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Chunk.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Concat.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Collections.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Core.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Distinct.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Exclude.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.GroupBy.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.GroupJoin.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Helpers.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Intersect.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Join.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Json.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Json.Provider.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.OfType.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Order.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.OrderBy.pas"/>
         <DCCReference Include="..\Source\System.Fluent.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Query.Provider.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.SkipWhile.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Where.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Select.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.SelectIndexed.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Take.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Skip.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.OrderBy.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Distinct.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.GroupBy.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.TakeWhile.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Zip.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Join.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.OfType.pas"/>
         <DCCReference Include="..\Source\System.Fluent.SelectMany.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.GroupJoin.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Exclude.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Intersect.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Union.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Concat.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Order.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.SelectIndexed.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.SelectManyIndexed.pas"/>
         <DCCReference Include="..\Source\System.Fluent.SelectManyCollection.pas"/>
         <DCCReference Include="..\Source\System.Fluent.SelectManyCollectionIndexed.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.SelectManyIndexed.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Skip.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.SkipWhile.pas"/>
         <DCCReference Include="..\Source\System.Fluent.SkipWhileIndexed.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Take.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.TakeWhile.pas"/>
         <DCCReference Include="..\Source\System.Fluent.TakeWhileIndexed.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Chunk.pas"/>
         <DCCReference Include="..\Source\System.Fluent.ThenBy.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Union.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Where.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Cast.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Queryable.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Xml.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Json.pas"/>
         <DCCReference Include="..\Source\System.Fluent.Xml.Provider.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Zip.pas"/>
-        <DCCReference Include="..\Source\System.Fluent.Collections.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Json.Provider.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Helpers.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Parse.pas"/>
+        <DCCReference Include="..\Source\Core\System.Fluent.Tuple.pas"/>
+        <DCCReference Include="..\Source\Core\System.Fluent.Objects.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Interfaces.pas"/>
+        <DCCReference Include="..\Source\System.Fluent.Expression.pas"/>
+        <DCCReference Include="..\Source\Core\System.Fluent.SafeTry.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -186,7 +165,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PTestFluentList.dpr</Source>
+                    <Source Name="MainSource">PTestFluentCQL.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
@@ -211,14 +190,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="PTestFluentList.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="PTestFluentCQL.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>PTestFluentList.exe</RemoteName>
+                        <RemoteName>PTestFluentCQL.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\PTestList.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="Win64\Debug\PTestList.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="OSX32">
                         <Operation>1</Operation>
@@ -1073,7 +1050,7 @@
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
+                <Platform value="Win64">False</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

@@ -7,8 +7,8 @@ uses
   SysUtils,
   DUnitX.TestFramework,
   Generics.Collections,
-  Fluent.Core,
-  Fluent.Helpers;
+  System.Fluent,
+  System.Fluent.Helpers;
 
 type
   TFluentStringTest = class
@@ -16,13 +16,13 @@ type
     [Test]
     procedure TestPartition;
     [Test]
-    procedure TestFilter;
+    procedure TestWhere;
     [Test]
     procedure TestCollect;
     [Test]
-    procedure TestMap;
+    procedure TestSelect;
     [Test]
-    procedure TestFlatMap;
+    procedure TestSelectMany;
     [Test]
     procedure TestSum;
     [Test]
@@ -69,13 +69,13 @@ begin
   Assert.AreEqual('Hello', LRight, 'Right should contain letters');
 end;
 
-procedure TFluentStringTest.TestFilter;
+procedure TFluentStringTest.TestWhere;
 var
   LString: string;
   LFiltered: TArray<Char>;
 begin
   LString := 'Hello123';
-  LFiltered := LString.Filter(
+  LFiltered := LString.Where(
     function(C: Char): Boolean
     begin
       Result := CharInSet(C, ['0'..'9']);
@@ -97,13 +97,13 @@ begin
   Assert.AreEqual('World', LWords[1], 'Second word should be World');
 end;
 
-procedure TFluentStringTest.TestMap;
+procedure TFluentStringTest.TestSelect;
 var
   LString: string;
   LMapped: TArray<Integer>;
 begin
   LString := 'abc';
-  LMapped := LString.Map<Integer>(
+  LMapped := LString.Select<Integer>(
     function(C: Char): Integer
     begin
       Result := Ord(C);
@@ -113,16 +113,16 @@ begin
   Assert.AreEqual(99, LMapped[2], 'Last should be ASCII of c');
 end;
 
-procedure TFluentStringTest.TestFlatMap;
+procedure TFluentStringTest.TestSelectMany;
 var
   LString: string;
   LFlatMapped: TArray<Char>;
 begin
   LString := 'ab';
-  LFlatMapped := LString.FlatMap(
-    function(C: Char): string
+  LFlatMapped := LString.SelectMany<Char>(
+    function(C: Char): TArray<Char>
     begin
-      Result := C + C;
+      Result := [C, C];
     end).ToArray;
   Assert.AreEqual(4, Length(LFlatMapped), 'FlatMapped should have 4 chars');
   Assert.AreEqual('a', LFlatMapped[0], 'First should be a');
@@ -163,7 +163,7 @@ var
   LResult: string;
 begin
   LString := 'abc';
-  LResult := LString.Reduce<string>('',
+  LResult := LString.Aggregate<string>('',
     function(Acc: string; C: Char): string
     begin
       Result := Acc + C;
@@ -252,7 +252,7 @@ end;
 procedure TFluentStringTest.TestGroupBy;
 var
   LString: string;
-  LGroups: IGroupedEnumerator<Boolean, Char>;
+  LGroups: IGroupByResult<Boolean, Char>;
   LEnum: IFluentEnumerator<IGrouping<Boolean, Char>>;
   LGroup: IGrouping<Boolean, Char>;
   LArray: TArray<Char>;

@@ -8,8 +8,8 @@ uses
   Variants,
   DUnitX.TestFramework,
   Generics.Collections,
-  Fluent.Core,
-  Fluent.Collections;
+  System.Fluent,
+  System.Fluent.Collections;
 
 type
   TProduct = class
@@ -39,8 +39,6 @@ type
     procedure TestListCount;
     [Test]
     procedure TestListAny;
-    [Test]
-    procedure TestListForEach;
     [Test]
     procedure TestListFirstOrDefault;
     [Test]
@@ -140,19 +138,11 @@ type
     [Test]
     procedure TestListOrderByDescending;
     [Test]
-    procedure TestListFlatMap;
+    procedure TestList_SelectMany;
     [Test]
-    procedure TestListFlatMapAutoManaged;
-    [Test]
-    procedure TestListTee;
+    procedure TestList_SelectManyAutoManaged;
     [Test]
     procedure TestListReduceGeneric;
-    [Test]
-    procedure TestListReduceRightWithInitial;
-    [Test]
-    procedure TestListReduceRightNoInitial;
-    [Test]
-    procedure TestListCycle;
     [Test]
     procedure TestListToDictionary;
   end;
@@ -242,20 +232,6 @@ begin
   Assert.IsTrue(LHasEven, 'List should contain at least one even number');
 end;
 
-procedure TListTest.TestListForEach;
-var
-  LSum: Integer;
-begin
-  LSum := 0;
-  FList.AddRange([1, 2, 3, 4, 5]);
-  FList.AsEnumerable.ForEach(
-    procedure(const Value: Integer)
-    begin
-      LSum := LSum + Value;
-    end);
-  Assert.AreEqual(15, LSum, 'Sum of elements should be 15');
-end;
-
 procedure TListTest.TestListFirstOrDefault;
 var
   LFirstEven: Integer;
@@ -318,11 +294,11 @@ var
   LSum: Integer;
 begin
   FList.AddRange([1, 2, 3, 4, 5]);
-  LSum := FList.AsEnumerable.Reduce(
+  LSum := FList.AsEnumerable.Aggregate(
     function(Acc, Value: Integer): Integer
     begin
       Result := Acc + Value;
-    end, 0);
+    end);
   Assert.AreEqual(15, LSum, 'Reduced sum of elements should be 15');
 end;
 
@@ -345,7 +321,7 @@ var
   LArray: TArray<Integer>;
 begin
   FList.AddRange([1, 2, 3, 4, 5]);
-  LFiltered := FList.AsEnumerable.Filter(
+  LFiltered := FList.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Result := Value > 3;
@@ -418,7 +394,7 @@ var
   LArray: TArray<Integer>;
 begin
   FList.AddRange([1, 2, 3, 4, 5]);
-  LMapped := FList.AsEnumerable.Map<Integer>(
+  LMapped := FList.AsEnumerable.Select<Integer>(
     function(Value: Integer): Integer
     begin
       Result := Value * 2;
@@ -431,7 +407,7 @@ end;
 
 procedure TListTest.TestListGroupBy;
 var
-  LGroups: IGroupedEnumerator<Integer, Integer>;
+  LGroups: IGroupByResult<Integer, Integer>;
   LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
   LArray: TArray<Integer>;
@@ -486,9 +462,9 @@ begin
     begin
       Result := StrToInt(Str[2]);
     end,
-    function(Num: Integer; Matches: IFluentWrapper<string>): string
+    function(Num: Integer; Matches: IFluentEnumerableAdapter<string>): string
     begin
-      Result := Num.ToString + ': ' + string.Join(', ', Matches.Value.ToArray);
+      Result := Num.ToString + ': ' + string.Join(', ', Matches.AsEnumerable.ToArray);
     end);
   LArray := LJoined.ToArray;
   Assert.AreEqual(3, Length(LArray), 'Joined list should have 3 elements');
@@ -563,7 +539,7 @@ var
   LArray: TArray<string>;
 begin
   FList.AddRange([1, 2, 3]);
-  LMapped := FList.AsEnumerable.Map<string>(
+  LMapped := FList.AsEnumerable.Select<string>(
     function(Value: Integer): string
     begin
       Writeln('Mapping: ' + IntToStr(Value));
@@ -583,7 +559,7 @@ var
   LArray: TArray<Integer>;
 begin
   FList.AddRange([3, 1, 4, 1, 5]);
-  LOrdered := FList.AsEnumerable.Filter(
+  LOrdered := FList.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));
@@ -608,7 +584,7 @@ var
   LArray: TArray<Integer>;
 begin
   FList.AddRange([3, 1, 4, 1, 5, 3]);
-  LDistinct := FList.AsEnumerable.Filter(
+  LDistinct := FList.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));
@@ -798,7 +774,7 @@ var
   LResult: Integer;
 begin
   FList.AddRange([1, 2, 3]);
-  LResult := FList.AsEnumerable.Reduce(
+  LResult := FList.AsEnumerable.Aggregate(
     function(A, B: Integer): Integer
     begin
       Result := A + B;
@@ -967,7 +943,6 @@ begin
   Assert.IsFalse(LResult, 'List should not contain 4');
 end;
 
-[Test]
 procedure TListTest.TestListSelectMany;
 var
   LList: TFluentList<TArray<Integer>>;
@@ -981,10 +956,14 @@ begin
     LList.Add([3]);
     LList.Add([4, 5]);
     LSelected := LList.AsEnumerable.SelectMany<Integer>(
-      function(Value: TArray<Integer>): IFluentWrapper<Integer>
+      function(Value: TArray<Integer>): TArray<Integer>
       begin
         LInnerList := TFluentList<Integer>.Create(Value);
-        Result := TFluentWrapper<Integer>.Create(LInnerList.AsEnumerable, LInnerList);
+        try
+          Result := LInnerList.ToArray;
+        finally
+          LInnerList.Free;
+        end;
       end);
     LArray := LSelected.ToArray;
     Assert.AreEqual(5, Length(LArray), 'Selected list should have 5 elements');
@@ -1143,7 +1122,7 @@ begin
   Assert.AreEqual(1, LArray[4], 'Fifth element should be 1');
 end;
 
-procedure TListTest.TestListFlatMap;
+procedure TListTest.TestList_SelectMany;
 var
   LList: TFluentList<string>;
   LFiltered: IFluentEnumerable<Char>;
@@ -1152,7 +1131,7 @@ begin
   LList := TFluentList<string>.Create;
   try
     LList.AddRange(['abc', 'def']);
-    LFiltered := LList.AsEnumerable.FlatMap<Char>(
+    LFiltered := LList.AsEnumerable.SelectMany<Char>(
       function(x: string): TArray<Char>
       begin
         Result := TArray<Char>.Create(x[1], x[1]);
@@ -1166,7 +1145,7 @@ begin
   end;
 end;
 
-procedure TListTest.TestListFlatMapAutoManaged;
+procedure TListTest.TestList_SelectManyAutoManaged;
 var
   LList: TFluentList<string>;
   LEnum: IFluentEnumerable<string>;
@@ -1176,7 +1155,7 @@ begin
   LList := TFluentList<string>.Create(['abc', 'def']);
   try
     LEnum := LList.AsEnumerable;
-    LFiltered := LEnum.FlatMap<Char>(
+    LFiltered := LEnum.SelectMany<Char>(
       function(x: string): TArray<Char>
       begin
         Result := TArray<Char>.Create(x[1], x[1]);
@@ -1195,55 +1174,13 @@ var
   LResult: string;
 begin
   FList.AddRange([1, 2, 3, 4, 5]);
-  LResult := FList.AsEnumerable.Reduce<string>(
+  LResult := FList.AsEnumerable.Aggregate<string>(
     'Sum: ',
     function(Acc: string; Value: Integer): string
     begin
       Result := Acc + Value.ToString;
     end);
   Assert.AreEqual('Sum: 12345', LResult, 'Reduce should concatenate numbers as string');
-end;
-
-procedure TListTest.TestListReduceRightWithInitial;
-var
-  LResult: Integer;
-begin
-  FList.AddRange([1, 2, 3, 4, 5]);
-  LResult := FList.AsEnumerable.ReduceRight(
-    function(Acc, Value: Integer): Integer
-    begin
-      Result := Acc + Value;
-    end,
-    0);
-  Assert.AreEqual(15, LResult, 'ReduceRight with initial value should sum from right to left');
-end;
-
-procedure TListTest.TestListReduceRightNoInitial;
-var
-  LResult: Integer;
-begin
-  FList.AddRange([1, 2, 3, 4, 5]);
-  LResult := FList.AsEnumerable.ReduceRight(
-    function(Acc, Value: Integer): Integer
-    begin
-      Result := Acc + Value;
-    end);
-  Assert.AreEqual(15, LResult, 'ReduceRight without initial value should sum from right to left');
-end;
-
-procedure TListTest.TestListCycle;
-var
-  LCycled: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
-begin
-  FList.AddRange([1, 2, 3]);
-  LCycled := FList.AsEnumerable.Cycle(2); // Repete 2 vezes
-  LArray := LCycled.ToArray;
-  Assert.AreEqual(6, Length(LArray), 'Cycled list should have 6 elements (2 cycles)');
-  Assert.AreEqual(1, LArray[0], 'First element should be 1');
-  Assert.AreEqual(3, LArray[2], 'Third element should be 3');
-  Assert.AreEqual(1, LArray[3], 'Fourth element should be 1 (second cycle)');
-  Assert.AreEqual(3, LArray[5], 'Sixth element should be 3 (second cycle)');
 end;
 
 procedure TListTest.TestListToDictionary;
@@ -1268,34 +1205,6 @@ begin
   finally
     LDict.Free;
   end;
-end;
-
-procedure TListTest.TestListTee;
-var
-  LTee: IFluentEnumerable<Integer>;
-  LArray1: TArray<Integer>;
-  LArray2: TArray<string>;
-begin
-  FList.AddRange([1, 2, 3]);
-  LTee := FList.AsEnumerable.Tee(2);
-  LArray1 := LTee.Filter(
-    function(X: Integer): Boolean
-    begin
-      Result := X > 2;
-    end).ToArray; // [3, 3]
-  LArray2 := LTee.Map<string>(
-    function(X: Integer): string
-    begin
-      Result := X.ToString;
-    end).ToArray; // ['1', '2', '3', '1', '2', '3']
-  Assert.AreEqual(2, Length(LArray1), 'First cycle should have 2 elements after filter');
-  Assert.AreEqual(6, Length(LArray2), 'Second cycle should have 6 elements after map');
-  Assert.AreEqual(3, LArray1[0], 'First cycle filtered should start with 3');
-  Assert.AreEqual(3, LArray1[1], 'First cycle filtered should end with 3');
-  Assert.AreEqual('1', LArray2[0], 'Second cycle mapped should start with "1"');
-  Assert.AreEqual('3', LArray2[2], 'Second cycle mapped should have "3" at index 2');
-  Assert.AreEqual('1', LArray2[3], 'Second cycle mapped should have "1" at index 3');
-  Assert.AreEqual('3', LArray2[5], 'Second cycle mapped should end with "3"');
 end;
 
 initialization

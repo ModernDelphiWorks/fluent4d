@@ -1,9 +1,5 @@
-{
-           Fluent4D - Fluent Data Processing Library for Delphi
-
+﻿{
                           Apache License
-                      Version 2.0, January 2004
-                   http://www.apache.org/licenses/
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -20,32 +16,57 @@
 
 {
   @abstract(Fluent4D Library - Fluent Data Processing for Delphi)
+  @description(A powerful and intuitive library for fluent-style data manipulation in Delphi)
   @created(03 Abr 2025)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
   @Discord(https://discord.gg/T2zJC8zX)
 }
 
-unit Fluent.Adapters;
+{$include ./fluent4d.inc}
+
+unit System.Fluent.Adapters;
 
 interface
 
 uses
+  {$IFDEF QUERYABLE}
+  System.Fluent.Queryable,
+  {$ENDIF}
+  Math,
   SysUtils,
   Generics.Collections,
-  Fluent.Core;
+  Generics.Defaults,
+  System.Fluent.Core,
+  System.Fluent;
 
 type
+  TEnumerableAdapter<TResult> = class(TInterfacedObject, IFluentEnumerableAdapter<TResult>)
+  private
+    FBase: IFluentEnumerableBase<TResult>;
+    FValue: IFluentEnumerable<TResult>;
+    FList: TObject;
+  public
+    constructor Create(const ABase: IFluentEnumerableBase<TResult>;
+      const AList: TObject); overload;
+    constructor Create(const AValue: IFluentEnumerable<TResult>;
+      const AList: TObject); overload;
+    destructor Destroy; override;
+    function AsEnumerable: IFluentEnumerable<TResult>;
+  end;
+
   TListAdapter<T> = class(TInterfacedObject, IFluentEnumerableBase<T>)
   private
     FList: TList<T>;
     FOwnsList: Boolean;
+    function GetCount: Integer;
   public
     constructor Create(const AList: TList<T>; AOwnsList: Boolean = False);
     destructor Destroy; override;
     function GetEnumerator: IFluentEnumerator<T>;
+    property Count: Integer read GetCount;
   end;
 
-  TListEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
+  TListAdapterEnumerator<T> = class(TInterfacedObject, IFluentEnumerator<T>)
   private
     FEnumerator: TList<T>.TEnumerator;
   public
@@ -67,7 +88,7 @@ type
     function GetEnumerator: IFluentEnumerator<TPair<K, V>>;
   end;
 
-  TDictionaryEnumerator<K, V> = class(TInterfacedObject, IFluentEnumerator<TPair<K, V>>)
+  TDictionaryAdapterEnumerator<K, V> = class(TInterfacedObject, IFluentEnumerator<TPair<K, V>>)
   private
     FEnumerator: TDictionary<K, V>.TPairEnumerator;
   public
@@ -87,7 +108,7 @@ type
     function GetEnumerator: IFluentEnumerator<Char>;
   end;
 
-  TStringEnumerator = class(TInterfacedObject, IFluentEnumerator<Char>)
+  TStringAdapterEnumerator = class(TInterfacedObject, IFluentEnumerator<Char>)
   private
     FString: string;
     FIndex: Integer;
@@ -103,10 +124,12 @@ type
   private
     FArray: TArray<T>;
     FList: TList<T>;
+    function GetCount: Integer;
   public
     constructor Create(const AArray: TArray<T>);
     destructor Destroy; override;
     function GetEnumerator: IFluentEnumerator<T>;
+    property Count: Integer read GetCount;
   end;
 
   TNonGenericArrayAdapter<T> = class(TInterfacedObject, IFluentEnumerableBase<T>)
@@ -118,6 +141,16 @@ type
     destructor Destroy; override;
     function GetEnumerator: IFluentEnumerator<T>;
   end;
+
+  {$IFDEF QUERYABLE}
+  TQueryableToEnumerableAdapter<T> = class(TInterfacedObject, IFluentEnumerableBase<T>)
+  private
+    FQueryable: IFluentQueryableBase<T>;
+  public
+    constructor Create(const AQueryable: IFluentQueryableBase<T>);
+    function GetEnumerator: IFluentEnumerator<T>;
+  end;
+  {$ENDIF}
 
 implementation
 
@@ -136,35 +169,40 @@ begin
   inherited;
 end;
 
+function TListAdapter<T>.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
 function TListAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
+  Result := TListAdapterEnumerator<T>.Create(FList.GetEnumerator);
 end;
 
 { TListEnumerator<T> }
 
-constructor TListEnumerator<T>.Create(const AEnumerator: TList<T>.TEnumerator);
+constructor TListAdapterEnumerator<T>.Create(const AEnumerator: TList<T>.TEnumerator);
 begin
   FEnumerator := AEnumerator;
 end;
 
-destructor TListEnumerator<T>.Destroy;
+destructor TListAdapterEnumerator<T>.Destroy;
 begin
   FEnumerator.Free;
   inherited;
 end;
 
-function TListEnumerator<T>.GetCurrent: T;
+function TListAdapterEnumerator<T>.GetCurrent: T;
 begin
   Result := FEnumerator.Current;
 end;
 
-function TListEnumerator<T>.MoveNext: Boolean;
+function TListAdapterEnumerator<T>.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
 
-procedure TListEnumerator<T>.Reset;
+procedure TListAdapterEnumerator<T>.Reset;
 begin
   raise ENotSupportedException.Create('Reset is not supported for list enumerators');
 end;
@@ -186,33 +224,33 @@ end;
 
 function TDictionaryAdapter<K, V>.GetEnumerator: IFluentEnumerator<TPair<K, V>>;
 begin
-  Result := TDictionaryEnumerator<K, V>.Create(FDict.GetEnumerator);
+  Result := TDictionaryAdapterEnumerator<K, V>.Create(FDict.GetEnumerator);
 end;
 
 { TDictionaryEnumerator<K, V> }
 
-constructor TDictionaryEnumerator<K, V>.Create(const AEnumerator: TDictionary<K, V>.TPairEnumerator);
+constructor TDictionaryAdapterEnumerator<K, V>.Create(const AEnumerator: TDictionary<K, V>.TPairEnumerator);
 begin
   FEnumerator := AEnumerator;
 end;
 
-destructor TDictionaryEnumerator<K, V>.Destroy;
+destructor TDictionaryAdapterEnumerator<K, V>.Destroy;
 begin
   FEnumerator.Free;
   inherited;
 end;
 
-function TDictionaryEnumerator<K, V>.GetCurrent: TPair<K, V>;
+function TDictionaryAdapterEnumerator<K, V>.GetCurrent: TPair<K, V>;
 begin
   Result := FEnumerator.Current;
 end;
 
-function TDictionaryEnumerator<K, V>.MoveNext: Boolean;
+function TDictionaryAdapterEnumerator<K, V>.MoveNext: Boolean;
 begin
   Result := FEnumerator.MoveNext;
 end;
 
-procedure TDictionaryEnumerator<K, V>.Reset;
+procedure TDictionaryAdapterEnumerator<K, V>.Reset;
 begin
   raise ENotSupportedException.Create('Reset is not supported for dictionary enumerators');
 end;
@@ -231,9 +269,14 @@ begin
   inherited;
 end;
 
+function TArrayAdapter<T>.GetCount: Integer;
+begin
+  Result := Length(FArray);
+end;
+
 function TArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
+  Result := TListAdapterEnumerator<T>.Create(FList.GetEnumerator);
 end;
 
 { TStringAdapter }
@@ -245,31 +288,31 @@ end;
 
 function TStringAdapter.GetEnumerator: IFluentEnumerator<Char>;
 begin
-  Result := TStringEnumerator.Create(FString);
+  Result := TStringAdapterEnumerator.Create(FString);
 end;
 
 { TStringEnumerator }
 
-constructor TStringEnumerator.Create(const AString: string);
+constructor TStringAdapterEnumerator.Create(const AString: string);
 begin
   FString := AString;
   FIndex := 0;
 end;
 
-function TStringEnumerator.GetCurrent: Char;
+function TStringAdapterEnumerator.GetCurrent: Char;
 begin
   if (FIndex < 1) or (FIndex > Length(FString)) then
     raise ERangeError.Create('Index out of bounds');
   Result := FString[FIndex];
 end;
 
-function TStringEnumerator.MoveNext: Boolean;
+function TStringAdapterEnumerator.MoveNext: Boolean;
 begin
   Inc(FIndex);
   Result := FIndex <= Length(FString);
 end;
 
-procedure TStringEnumerator.Reset;
+procedure TStringAdapterEnumerator.Reset;
 begin
   FIndex := 0;
 end;
@@ -294,7 +337,54 @@ end;
 
 function TNonGenericArrayAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
 begin
-  Result := TListEnumerator<T>.Create(FList.GetEnumerator);
+  Result := TListAdapterEnumerator<T>.Create(FList.GetEnumerator);
+end;
+
+{$IFDEF QUERYABLE}
+{ TQueryableToEnumerableAdapter<T> }
+
+constructor TQueryableToEnumerableAdapter<T>.Create(const AQueryable: IFluentQueryableBase<T>);
+begin
+  FQueryable := AQueryable;
+end;
+
+function TQueryableToEnumerableAdapter<T>.GetEnumerator: IFluentEnumerator<T>;
+begin
+  Result := FQueryable.GetEnumerator;
+end;
+{$ENDIF}
+
+{ TFluentEnumerableAdapter<TResult> }
+
+constructor TEnumerableAdapter<TResult>.Create(const ABase: IFluentEnumerableBase<TResult>;
+  const AList: TObject);
+begin
+  FBase := ABase;
+  FList := AList;
+  FValue := IFluentEnumerable<TResult>.Create(
+    FBase,
+    ftNone,
+    TEqualityComparer<TResult>.Default
+  );
+end;
+
+constructor TEnumerableAdapter<TResult>.Create(const AValue: IFluentEnumerable<TResult>;
+  const AList: TObject);
+begin
+  FValue := AValue;
+  FList := AList;
+  FBase := nil;
+end;
+
+destructor TEnumerableAdapter<TResult>.Destroy;
+begin
+  FList.Free;
+  inherited;
+end;
+
+function TEnumerableAdapter<TResult>.AsEnumerable: IFluentEnumerable<TResult>;
+begin
+  Result := FValue;
 end;
 
 end.

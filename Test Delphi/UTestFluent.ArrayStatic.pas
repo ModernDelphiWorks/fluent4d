@@ -9,8 +9,8 @@ uses
   DUnitX.TestFramework,
   Generics.Collections,
   Generics.Defaults,
-  Fluent.Core,
-  Fluent.Collections;
+  System.Fluent,
+  System.Fluent.Collections;
 
 type
   TArrayStaticTest = class
@@ -79,8 +79,6 @@ type
     procedure TestLazyCount;
     [Test]
     procedure TestLazyAny;
-    [Test]
-    procedure TestLazyForEach;
     [Test]
     procedure TestLazyFirstOrDefault;
     [Test]
@@ -467,19 +465,6 @@ begin
   Assert.IsTrue(LHasEven, 'Array should contain at least one even number');
 end;
 
-procedure TArrayStaticTest.TestLazyForEach;
-var
-  LSum: Integer;
-begin
-  LSum := 0;
-  TFluentArray.From<Integer>([1, 2, 3, 4, 5]).ForEach(
-    procedure(const Value: Integer)
-    begin
-      LSum := LSum + Value;
-    end);
-  Assert.AreEqual(15, LSum, 'Sum of elements should be 15');
-end;
-
 procedure TArrayStaticTest.TestLazyFirstOrDefault;
 var
   LFirstEven: Integer;
@@ -536,11 +521,11 @@ procedure TArrayStaticTest.TestLazyReduce;
 var
   LSum: Integer;
 begin
-  LSum := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Reduce(
+  LSum := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Aggregate(
     function(Acc, Value: Integer): Integer
     begin
       Result := Acc + Value;
-    end, 0);
+    end);
   Assert.AreEqual(15, LSum, 'Reduced sum of elements should be 15');
 end;
 
@@ -561,7 +546,7 @@ var
   LFiltered: IFluentEnumerable<Integer>;
   LArray: TArray<Integer>;
 begin
-  LFiltered := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Filter(
+  LFiltered := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Where(
     function(Value: Integer): Boolean
     begin
       Result := Value > 3;
@@ -629,7 +614,7 @@ var
   LMapped: IFluentEnumerable<Integer>;
   LArray: TArray<Integer>;
 begin
-  LMapped := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Map<Integer>(
+  LMapped := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Select<Integer>(
     function(Value: Integer): Integer
     begin
       Result := Value * 2;
@@ -642,7 +627,7 @@ end;
 
 procedure TArrayStaticTest.TestLazyGroupBy;
 var
-  LGroups: IGroupedEnumerator<Integer, Integer>;
+  LGroups: IGroupByResult<Integer, Integer>;
   LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
   LArray: TArray<Integer>;
@@ -726,7 +711,7 @@ var
   LMapped: IFluentEnumerable<string>;
   LArray: TArray<string>;
 begin
-  LMapped := TFluentArray.From<Integer>([1, 2, 3]).Map<string>(
+  LMapped := TFluentArray.From<Integer>([1, 2, 3]).Select<string>(
     function(Value: Integer): string
     begin
       Writeln('Mapping: ' + IntToStr(Value));
@@ -745,7 +730,7 @@ var
   LOrdered: IFluentEnumerable<Integer>;
   LArray: TArray<Integer>;
 begin
-  LOrdered := TFluentArray.From<Integer>([3, 1, 4, 1, 5]).Filter(
+  LOrdered := TFluentArray.From<Integer>([3, 1, 4, 1, 5]).Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));
@@ -769,7 +754,7 @@ var
   LDistinct: IFluentEnumerable<Integer>;
   LArray: TArray<Integer>;
 begin
-  LDistinct := TFluentArray.From<Integer>([3, 1, 4, 1, 5, 3]).Filter(
+  LDistinct := TFluentArray.From<Integer>([3, 1, 4, 1, 5, 3]).Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));

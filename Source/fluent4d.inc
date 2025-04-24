@@ -35,6 +35,7 @@
 
 {
   Compiler			CompilerVersion		Defined Symbol	Used BPL
+  Delphi 13   ??        	36 			VER370			30
   Delphi 12.3 Athens       	36 			VER360			29
   Delphi 11.1 Alexandria 	35 			VER350			28
   Delphi 10.4 Sidney     	34 			VER340			27
@@ -55,7 +56,7 @@
 
 {$DEFINE VCL}
 {.$DEFINE FMX}
-{.$DEFINE LOAD_DYNAMICALLY}
+{.$DEFINE QUERYABLE}
 
 {$IFDEF FMX}
   {$DEFINE HAS_FMX}

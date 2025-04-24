@@ -8,8 +8,8 @@ uses
   Variants,
   DUnitX.TestFramework,
   Generics.Collections,
-  Fluent.Core,
-  Fluent.Collections;
+  System.Fluent,
+  System.Fluent.Collections;
 
 type
   TProduct = class
@@ -39,8 +39,6 @@ type
     procedure TestArrayCount;
     [Test]
     procedure TestArrayAny;
-    [Test]
-    procedure TestArrayForEach;
     [Test]
     procedure TestArrayFirstOrDefault;
     [Test]
@@ -144,15 +142,7 @@ type
     [Test]
     procedure TestArrayFlatMapAutoManaged;
     [Test]
-    procedure TestArrayTee;
-    [Test]
     procedure TestArrayReduceGeneric;
-    [Test]
-    procedure TestArrayReduceRightWithInitial;
-    [Test]
-    procedure TestArrayReduceRightNoInitial;
-    [Test]
-    procedure TestArrayCycle;
     [Test]
     procedure TestArrayToDictionary;
   end;
@@ -242,20 +232,6 @@ begin
   Assert.IsTrue(LHasEven, 'Array should contain at least one even number');
 end;
 
-procedure TArrayTest.TestArrayForEach;
-var
-  LSum: Integer;
-begin
-  LSum := 0;
-  FArray.SetItems([1, 2, 3, 4, 5]);
-  FArray.AsEnumerable.ForEach(
-    procedure(const Value: Integer)
-    begin
-      LSum := LSum + Value;
-    end);
-  Assert.AreEqual(15, LSum, 'Sum of elements should be 15');
-end;
-
 procedure TArrayTest.TestArrayFirstOrDefault;
 var
   LFirstEven: Integer;
@@ -318,11 +294,11 @@ var
   LSum: Integer;
 begin
   FArray.SetItems([1, 2, 3, 4, 5]);
-  LSum := FArray.AsEnumerable.Reduce(
+  LSum := FArray.AsEnumerable.Aggregate(
     function(Acc, Value: Integer): Integer
     begin
       Result := Acc + Value;
-    end, 0);
+    end);
   Assert.AreEqual(15, LSum, 'Reduced sum of elements should be 15');
 end;
 
@@ -345,7 +321,7 @@ var
   LArray: TArray<Integer>;
 begin
   FArray.SetItems([1, 2, 3, 4, 5]);
-  LFiltered := FArray.AsEnumerable.Filter(
+  LFiltered := FArray.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Result := Value > 3;
@@ -418,7 +394,7 @@ var
   LArray: TArray<Integer>;
 begin
   FArray.SetItems([1, 2, 3, 4, 5]);
-  LMapped := FArray.AsEnumerable.Map<Integer>(
+  LMapped := FArray.AsEnumerable.Select<Integer>(
     function(Value: Integer): Integer
     begin
       Result := Value * 2;
@@ -431,7 +407,7 @@ end;
 
 procedure TArrayTest.TestArrayGroupBy;
 var
-  LGroups: IGroupedEnumerator<Integer, Integer>;
+  LGroups: IGroupByResult<Integer, Integer>;
   LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
   LArray: TArray<Integer>;
@@ -531,7 +507,7 @@ var
   LArray: TArray<string>;
 begin
   FArray.SetItems([1, 2, 3]);
-  LMapped := FArray.AsEnumerable.Map<string>(
+  LMapped := FArray.AsEnumerable.Select<string>(
     function(Value: Integer): string
     begin
       Writeln('Mapping: ' + IntToStr(Value));
@@ -551,7 +527,7 @@ var
   LArray: TArray<Integer>;
 begin
   FArray.SetItems([3, 1, 4, 1, 5]);
-  LOrdered := FArray.AsEnumerable.Filter(
+  LOrdered := FArray.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));
@@ -576,7 +552,7 @@ var
   LArray: TArray<Integer>;
 begin
   FArray.SetItems([3, 1, 4, 1, 5, 3]);
-  LDistinct := FArray.AsEnumerable.Filter(
+  LDistinct := FArray.AsEnumerable.Where(
     function(Value: Integer): Boolean
     begin
       Writeln('Filtering: ' + IntToStr(Value));
@@ -762,7 +738,7 @@ var
   LResult: Integer;
 begin
   FArray.SetItems([1, 2, 3]);
-  LResult := FArray.AsEnumerable.Reduce(
+  LResult := FArray.AsEnumerable.Aggregate(
     function(A, B: Integer): Integer
     begin
       Result := A + B;
@@ -789,9 +765,9 @@ begin
       begin
         Result := StrToInt(Str[2]);
       end,
-      function(Num: Integer; Matches: IFluentWrapper<string>): string
+      function(Num: Integer; Matches: IFluentEnumerableAdapter<string>): string
       begin
-        Result := Num.ToString + ': ' + string.Join(', ', Matches.Value.ToArray);
+        Result := Num.ToString + ': ' + string.Join(', ', Matches.AsEnumerable.ToArray);
       end);
     LArray := LJoined.ToArray;
     Assert.AreEqual(3, Length(LArray), 'Joined array should have 3 elements');
@@ -1112,7 +1088,7 @@ var
 begin
   LArrayStr := TFluentArray<string>.Create(['abc', 'def']);
   try
-    LFiltered := LArrayStr.AsEnumerable.FlatMap<Char>(
+    LFiltered := LArrayStr.AsEnumerable.SelectMany<Char>(
       function(x: string): TArray<Char>
       begin
         Result := TArray<Char>.Create(x[1], x[1]);
@@ -1136,7 +1112,7 @@ begin
   LArrayStr := TFluentArray<string>.Create(['abc', 'def']);
   try
     LEnum := LArrayStr.AsEnumerable;
-    LFiltered := LEnum.FlatMap<Char>(
+    LFiltered := LEnum.SelectMany<Char>(
       function(x: string): TArray<Char>
       begin
         Result := TArray<Char>.Create(x[1], x[1]);
@@ -1150,88 +1126,18 @@ begin
   end;
 end;
 
-procedure TArrayTest.TestArrayTee;
-var
-  LTee: IFluentEnumerable<Integer>;
-  LArray1: TArray<Integer>;
-  LArray2: TArray<string>;
-begin
-  FArray.SetItems([1, 2, 3]);
-  LTee := FArray.AsEnumerable.Tee(2);
-  LArray1 := LTee.Filter(
-    function(X: Integer): Boolean
-    begin
-      Result := X > 2;
-    end).ToArray; // [3, 3]
-  LArray2 := LTee.Map<string>(
-    function(X: Integer): string
-    begin
-      Result := X.ToString;
-    end).ToArray; // ['1', '2', '3', '1', '2', '3']
-  Assert.AreEqual(2, Length(LArray1), 'First cycle should have 2 elements after filter');
-  Assert.AreEqual(6, Length(LArray2), 'Second cycle should have 6 elements after map');
-  Assert.AreEqual(3, LArray1[0], 'First cycle filtered should start with 3');
-  Assert.AreEqual(3, LArray1[1], 'First cycle filtered should end with 3');
-  Assert.AreEqual('1', LArray2[0], 'Second cycle mapped should start with "1"');
-  Assert.AreEqual('3', LArray2[2], 'Second cycle mapped should have "3" at index 2');
-  Assert.AreEqual('1', LArray2[3], 'Second cycle mapped should have "1" at index 3');
-  Assert.AreEqual('3', LArray2[5], 'Second cycle mapped should end with "3"');
-end;
-
 procedure TArrayTest.TestArrayReduceGeneric;
 var
   LResult: string;
 begin
   FArray.SetItems([1, 2, 3, 4, 5]);
-  LResult := FArray.AsEnumerable.Reduce<string>(
+  LResult := FArray.AsEnumerable.Aggregate<string>(
     'Sum: ',
     function(Acc: string; Value: Integer): string
     begin
       Result := Acc + Value.ToString;
     end);
   Assert.AreEqual('Sum: 12345', LResult, 'Reduce should concatenate numbers as string');
-end;
-
-procedure TArrayTest.TestArrayReduceRightWithInitial;
-var
-  LResult: Integer;
-begin
-  FArray.SetItems([1, 2, 3, 4, 5]);
-  LResult := FArray.AsEnumerable.ReduceRight(
-    function(Acc, Value: Integer): Integer
-    begin
-      Result := Acc + Value;
-    end,
-    0);
-  Assert.AreEqual(15, LResult, 'ReduceRight with initial value should sum from right to left');
-end;
-
-procedure TArrayTest.TestArrayReduceRightNoInitial;
-var
-  LResult: Integer;
-begin
-  FArray.SetItems([1, 2, 3, 4, 5]);
-  LResult := FArray.AsEnumerable.ReduceRight(
-    function(Acc, Value: Integer): Integer
-    begin
-      Result := Acc + Value;
-    end);
-  Assert.AreEqual(15, LResult, 'ReduceRight without initial value should sum from right to left');
-end;
-
-procedure TArrayTest.TestArrayCycle;
-var
-  LCycled: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
-begin
-  FArray.SetItems([1, 2, 3]);
-  LCycled := FArray.AsEnumerable.Cycle(2); // Repete 2 vezes
-  LArray := LCycled.ToArray;
-  Assert.AreEqual(6, Length(LArray), 'Cycled array should have 6 elements (2 cycles)');
-  Assert.AreEqual(1, LArray[0], 'First element should be 1');
-  Assert.AreEqual(3, LArray[2], 'Third element should be 3');
-  Assert.AreEqual(1, LArray[3], 'Fourth element should be 1 (second cycle)');
-  Assert.AreEqual(3, LArray[5], 'Sixth element should be 3 (second cycle)');
 end;
 
 procedure TArrayTest.TestArrayToDictionary;

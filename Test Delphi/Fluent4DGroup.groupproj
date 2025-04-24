@@ -18,6 +18,9 @@
         <Projects Include="PTestFluentString.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="PTestFluentCQL.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="PTestFluentString:Make">
         <MSBuild Projects="PTestFluentString.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PTestFluentCQL">
+        <MSBuild Projects="PTestFluentCQL.dproj"/>
+    </Target>
+    <Target Name="PTestFluentCQL:Clean">
+        <MSBuild Projects="PTestFluentCQL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PTestFluentCQL:Make">
+        <MSBuild Projects="PTestFluentCQL.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PTestFluentDictionary;PTestFluentList;PTestFluentArrayT;PTestFluentArrayStatic;PTestFluentString"/>
+        <CallTarget Targets="PTestFluentDictionary;PTestFluentList;PTestFluentArrayT;PTestFluentArrayStatic;PTestFluentString;PTestFluentCQL"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PTestFluentDictionary:Clean;PTestFluentList:Clean;PTestFluentArrayT:Clean;PTestFluentArrayStatic:Clean;PTestFluentString:Clean"/>
+        <CallTarget Targets="PTestFluentDictionary:Clean;PTestFluentList:Clean;PTestFluentArrayT:Clean;PTestFluentArrayStatic:Clean;PTestFluentString:Clean;PTestFluentCQL:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PTestFluentDictionary:Make;PTestFluentList:Make;PTestFluentArrayT:Make;PTestFluentArrayStatic:Make;PTestFluentString:Make"/>
+        <CallTarget Targets="PTestFluentDictionary:Make;PTestFluentList:Make;PTestFluentArrayT:Make;PTestFluentArrayStatic:Make;PTestFluentString:Make;PTestFluentCQL:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

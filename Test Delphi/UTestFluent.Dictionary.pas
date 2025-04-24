@@ -8,9 +8,9 @@ uses
   SysUtils,
   Generics.Collections,
   Generics.Defaults,
-  Fluent.Core,
-  Fluent.Adapters,
-  Fluent.Collections;
+  System.Fluent,
+  System.Fluent.Adapters,
+  System.Fluent.Collections;
 
 type
   TDictionaryHelperTest = class
@@ -24,8 +24,6 @@ type
     procedure Setup;
     [TearDown]
     procedure TearDown;
-    [Test]
-    procedure TestForEach;
     [Test]
     procedure TestMap;
     [Test]
@@ -107,8 +105,6 @@ type
     [Test]
     procedure TestCreateWithArrayAndComparer;
     [Test]
-    procedure TestCreateWithDictOwns;
-    [Test]
     procedure TestCreateWithDictNoOwns;
     [Test]
     procedure TestFromDict;
@@ -116,10 +112,6 @@ type
     procedure TestFromArray;
     [Test]
     procedure TestGetEnumerator;
-    [Test]
-    procedure TestCycle;
-    [Test]
-    procedure TestTee;
     [Test]
     procedure TestElementAt;
     [Test]
@@ -177,10 +169,6 @@ type
     [Test]
     procedure TestReduceNoInitial;
     [Test]
-    procedure TestReduceRight;
-    [Test]
-    procedure TestReduceRightNoInitial;
-    [Test]
     procedure TestSumInteger;
     [Test]
     procedure TestSumDouble;
@@ -231,34 +219,6 @@ begin
   FValueNotified := True;
 end;
 
-procedure TDictionaryHelperTest.TestForEach;
-var
-  LDictionary: TFluentDictionary<Integer, String>;
-  LCollectedValues: TList<String>;
-begin
-  LDictionary := TFluentDictionary<Integer, String>.Create;
-  LCollectedValues := TList<String>.Create;
-  try
-    LDictionary.Add(1, 'One');
-    LDictionary.Add(2, 'Two');
-    LDictionary.Add(3, 'Three');
-
-    LDictionary.AsEnumerable.ForEach(
-      procedure(const Pair: TPair<Integer, String>)
-      begin
-        LCollectedValues.Add(Pair.Value);
-      end);
-
-    Assert.AreEqual(3, LCollectedValues.Count, 'Deveria ter coletado 3 valores');
-    Assert.IsTrue(LCollectedValues.Contains('One'), 'Deveria conter "One"');
-    Assert.IsTrue(LCollectedValues.Contains('Two'), 'Deveria conter "Two"');
-    Assert.IsTrue(LCollectedValues.Contains('Three'), 'Deveria conter "Three"');
-  finally
-    LDictionary.Free;
-    LCollectedValues.Free;
-  end;
-end;
-
 procedure TDictionaryHelperTest.TestMap;
 var
   LDictionary: IFluentDictionary<Integer, String>;
@@ -271,7 +231,7 @@ begin
     LDictionary.Add(2, 'Two');
     LDictionary.Add(3, 'Three');
 
-    LMapped := LDictionary.AsEnumerable.Map<TPair<Integer, String>>(
+    LMapped := LDictionary.AsEnumerable.Select<TPair<Integer, String>>(
       function(Pair: TPair<Integer, String>): TPair<Integer, String>
       begin
         Result.Key := Pair.Key;
@@ -310,7 +270,7 @@ begin
     LDictionary.Add(3, 'Three');
     LDictionary.Add(4, 'Four');
 
-    LFiltered := LDictionary.AsEnumerable.Filter(
+    LFiltered := LDictionary.AsEnumerable.Where(
       function(Pair: TPair<Integer, String>): Boolean
       begin
         Result := Length(Pair.Value) = 3;
@@ -349,7 +309,7 @@ begin
     LDictionary.Add('Three', 3);
     LDictionary.Add('Four', 4);
 
-    LResult := LDictionary.AsEnumerable.Reduce<TPair<String, Integer>>(
+    LResult := LDictionary.AsEnumerable.Aggregate<TPair<String, Integer>>(
       TPair<String, Integer>.Create('', 0),
       function(Acc, Current: TPair<String, Integer>): TPair<String, Integer>
       begin
@@ -1166,29 +1126,6 @@ begin
   end;
 end;
 
-procedure TDictionaryHelperTest.TestCreateWithDictOwns;
-var
-  LSourceDict: TDictionary<Integer, String>;
-  LDictionary: TFluentDictionary<Integer, String>;
-begin
-  LSourceDict := TDictionary<Integer, String>.Create;
-  try
-    LSourceDict.Add(1, 'One');
-    LSourceDict.Add(2, 'Two');
-
-    LDictionary := TFluentDictionary<Integer, String>.Create(LSourceDict, True);
-    try
-      Assert.AreEqual(2, LDictionary.Count, 'Deveria ter 2 elementos');
-      Assert.AreEqual('One', LDictionary[1], 'Deveria conter "One" para chave 1');
-      Assert.AreEqual('Two', LDictionary[2], 'Deveria conter "Two" para chave 2');
-    finally
-      LDictionary.Free; // LSourceDict será liberado aqui por FOwnsDict = True
-    end;
-  finally
-    // Não libera LSourceDict aqui, pois LDictionary já o fez
-  end;
-end;
-
 procedure TDictionaryHelperTest.TestCreateWithDictNoOwns;
 var
   LSourceDict: TDictionary<Integer, String>;
@@ -1199,7 +1136,7 @@ begin
     LSourceDict.Add(1, 'One');
     LSourceDict.Add(2, 'Two');
 
-    LDictionary := TFluentDictionary<Integer, String>.Create(LSourceDict, False);
+    LDictionary := TFluentDictionary<Integer, String>.Create(LSourceDict.ToArray);
     try
       Assert.AreEqual(2, LDictionary.Count, 'Deveria ter 2 elementos');
       Assert.AreEqual('One', LDictionary[1], 'Deveria conter "One" para chave 1');
@@ -1298,58 +1235,6 @@ begin
       Inc(LCount);
 
     Assert.AreEqual(2, LCount, 'Deveria enumerar 2 elementos');
-  finally
-    LDictionary.Free;
-  end;
-end;
-
-procedure TDictionaryHelperTest.TestCycle;
-var
-  LDictionary: TFluentDictionary<Integer, String>;
-  LResult: TArray<TPair<Integer, String>>;
-begin
-  LDictionary := TFluentDictionary<Integer, String>.Create;
-  try
-    LDictionary.Add(1, 'One');
-    LDictionary.Add(2, 'Two');
-
-    LResult := LDictionary.AsEnumerable.OrderBy(
-      function(A, B: TPair<Integer, String>): Integer
-      begin
-        Result := A.Key - B.Key;
-      end).Cycle(3).ToArray;
-
-    Assert.AreEqual(6, Length(LResult), 'Deveria repetir 3 vezes (2 elementos x 3 = 6)');
-    Assert.AreEqual('One', LResult[0].Value, 'Primeiro ciclo deveria conter "One"');
-    Assert.AreEqual('Two', LResult[1].Value, 'Primeiro ciclo deveria conter "Two"');
-    Assert.AreEqual('One', LResult[2].Value, 'Segundo ciclo deveria conter "One"');
-    Assert.AreEqual('Two', LResult[3].Value, 'Segundo ciclo deveria conter "Two"');
-  finally
-    LDictionary.Free;
-  end;
-end;
-
-procedure TDictionaryHelperTest.TestTee;
-var
-  LDictionary: TFluentDictionary<Integer, String>;
-  LResult: TArray<TPair<Integer, String>>;
-begin
-  LDictionary := TFluentDictionary<Integer, String>.Create;
-  try
-    LDictionary.Add(1, 'One');
-    LDictionary.Add(2, 'Two');
-
-    LResult := LDictionary.AsEnumerable.OrderBy(
-      function(A, B: TPair<Integer, String>): Integer
-      begin
-        Result := A.Key - B.Key;
-      end).Tee(2).ToArray;
-
-    Assert.AreEqual(4, Length(LResult), 'Deveria duplicar 2 vezes (2 elementos x 2 = 4)');
-    Assert.AreEqual('One', LResult[0].Value, 'Primeira repetição deveria conter "One"');
-    Assert.AreEqual('Two', LResult[1].Value, 'Primeira repetição deveria conter "Two"');
-    Assert.AreEqual('One', LResult[2].Value, 'Segunda repetição deveria conter "One"');
-    Assert.AreEqual('Two', LResult[3].Value, 'Segunda repetição deveria conter "Two"');
   finally
     LDictionary.Free;
   end;
@@ -1841,8 +1726,8 @@ var
   LDict: IFluentDictionary<Integer, TStringList>;
   LDictStr: IFluentDictionary<Integer, String>;
 begin
-  LDict := TFluentDictionary<Integer, TStringList>.Create(True); // OwnsValues = True
-  LDictStr := TFluentDictionary<Integer, String>.Create(True);
+  LDict := TFluentDictionary<Integer, TStringList>.Create([doOwnsValues]);
+  LDictStr := TFluentDictionary<Integer, String>.Create;
 
   // Adiciona TStringList ao dicionário
   LStringList1 := TStringList.Create;
@@ -1864,7 +1749,7 @@ procedure TDictionaryHelperTest.TestOwnsValuesWithStrings;
 var
   LDictStr: IFluentDictionary<Integer, String>;
 begin
-  LDictStr := TFluentDictionary<Integer, String>.Create(True);
+  LDictStr := TFluentDictionary<Integer, String>.Create;
 
   // Adiciona strings ao dicionário
   LDictStr.Add(1, 'One');
@@ -2029,7 +1914,7 @@ begin
     LDictionary.Add(1, 'One');
     LDictionary.Add(2, 'Two');
 
-    LResult := LDictionary.AsEnumerable.FlatMap<String>(
+    LResult := LDictionary.AsEnumerable.SelectMany<String>(
       function(Pair: TPair<Integer, String>): TArray<String>
       begin
         Result := [Pair.Value, Pair.Value + 'Flat'];
@@ -2056,14 +1941,9 @@ begin
     LDictionary.Add(2, 'Two');
 
     LResult := LDictionary.AsEnumerable.SelectMany<String>(
-      function(Pair: TPair<Integer, String>): IFluentWrapper<String>
-      var
-        LArray: TArray<String>;
-        LEnum: IFluentEnumerable<String>;
+      function(Pair: TPair<Integer, String>): TArray<String>
       begin
-        LArray := TArray<String>.Create(Pair.Value, Pair.Value + 'Many');
-        LEnum := IFluentEnumerable<String>.Create(TArrayAdapter<String>.Create(LArray));
-        Result := TFluentWrapper<String>.Create(LEnum, nil);
+        Result := TArray<String>.Create(Pair.Value, Pair.Value + 'Many');
       end).ToArray;
 
     Assert.AreEqual(4, Length(LResult), 'Deveria achatar pra 4 elementos');
@@ -2079,7 +1959,7 @@ end;
 procedure TDictionaryHelperTest.TestGroupBy;
 var
   LDictionary: TFluentDictionary<Integer, String>;
-  LGroups: IGroupedEnumerator<String, TPair<Integer, String>>;
+  LGroups: IGroupByResult<String, TPair<Integer, String>>;
   LEnum: IFluentEnumerator<IGrouping<String, TPair<Integer, String>>>;
   LGroup: IGrouping<String, TPair<Integer, String>>;
   LCount: Integer;
@@ -2145,11 +2025,11 @@ begin
       begin
         Result := Pair2.Key;
       end,
-      function(Pair1: TPair<Integer, String>; Inner: IFluentWrapper<TPair<Integer, String>>): String
+      function(Pair1: TPair<Integer, String>; Inner: IFluentEnumerableAdapter<TPair<Integer, String>>): String
       var
         LInnerArray: TArray<TPair<Integer, String>>;
       begin
-        LInnerArray := Inner.Value.OrderBy(
+        LInnerArray := Inner.AsEnumerable.OrderBy(
           function(A, B: TPair<Integer, String>): Integer
           begin
             Result := CompareStr(A.Value, B.Value);
@@ -2183,7 +2063,7 @@ begin
       function(A, B: TPair<Integer, String>): Integer
       begin
         Result := A.Key - B.Key;
-      end).Reduce(
+      end).Aggregate(
       function(Acc, Current: TPair<Integer, String>): TPair<Integer, String>
       begin
         Result.Key := Acc.Key + Current.Key;
@@ -2192,63 +2072,6 @@ begin
 
     Assert.AreEqual(3, LResult.Key, 'Deveria somar as chaves (1 + 2 = 3)');
     Assert.AreEqual('OneTwo', LResult.Value, 'Deveria concatenar os valores');
-  finally
-    LDictionary.Free;
-  end;
-end;
-
-procedure TDictionaryHelperTest.TestReduceRight;
-var
-  LDictionary: TFluentDictionary<Integer, String>;
-  LResult: TPair<Integer, String>;
-begin
-  LDictionary := TFluentDictionary<Integer, String>.Create;
-  try
-    LDictionary.Add(1, 'One');
-    LDictionary.Add(2, 'Two');
-
-    LResult := LDictionary.AsEnumerable.OrderBy(
-      function(A, B: TPair<Integer, String>): Integer
-      begin
-        Result := A.Key - B.Key;
-      end).ReduceRight(
-      function(Acc, Current: TPair<Integer, String>): TPair<Integer, String>
-      begin
-        Result.Key := Acc.Key + Current.Key;
-        Result.Value := Current.Value + Acc.Value;
-      end,
-      TPair<Integer, String>.Create(0, ''));
-
-    Assert.AreEqual(3, LResult.Key, 'Deveria somar as chaves da direita (2 + 1 = 3)');
-    Assert.AreEqual('TwoOne', LResult.Value, 'Deveria concatenar os valores da direita');
-  finally
-    LDictionary.Free;
-  end;
-end;
-
-procedure TDictionaryHelperTest.TestReduceRightNoInitial;
-var
-  LDictionary: TFluentDictionary<Integer, String>;
-  LResult: TPair<Integer, String>;
-begin
-  LDictionary := TFluentDictionary<Integer, String>.Create;
-  try
-    LDictionary.Add(1, 'One');
-    LDictionary.Add(2, 'Two');
-
-    LResult := LDictionary.AsEnumerable.OrderBy(
-      function(A, B: TPair<Integer, String>): Integer
-      begin
-        Result := A.Key - B.Key;
-      end).ReduceRight(
-      function(Acc, Current: TPair<Integer, String>): TPair<Integer, String>
-      begin
-        Result.Key := Acc.Key + Current.Key;
-        Result.Value := Current.Value + Acc.Value;
-      end);
-
-    Assert.AreEqual(3, LResult.Key, 'Deveria somar as chaves da direita (2 + 1 = 3)');
-    Assert.AreEqual('TwoOne', LResult.Value, 'Deveria concatenar os valores da direita');
   finally
     LDictionary.Free;
   end;
@@ -2329,7 +2152,7 @@ var
   LPair: TPair<Integer, TStringList>;
   LStringList: TStringList;
 begin
-  LDict := TFluentDictionary<Integer, TStringList>.Create(True); // OwnsValues = True
+  LDict := TFluentDictionary<Integer, TStringList>.Create([doOwnsValues]); // OwnsValues = True
 
   // Adiciona um item
   LStringList := TStringList.Create;
