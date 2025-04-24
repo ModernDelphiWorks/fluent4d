@@ -56,10 +56,7 @@ uses
   System.Fluent.Json.Provider in '..\Source\System.Fluent.Json.Provider.pas',
   System.Fluent.Helpers in '..\Source\System.Fluent.Helpers.pas',
   System.Fluent.Parse in '..\Source\System.Fluent.Parse.pas',
-  System.Fluent.Tuple in '..\Source\Core\System.Fluent.Tuple.pas',
-  System.Fluent.Objects in '..\Source\Core\System.Fluent.Objects.pas',
-  System.Fluent.Expression in '..\Source\System.Fluent.Expression.pas',
-  System.Fluent.SafeTry in '..\Source\Core\System.Fluent.SafeTry.pas';
+  System.Fluent.Expression in '..\Source\System.Fluent.Expression.pas';
 
 { keep comment here to protect the following conditional from being removed by the IDE when adding a unit }
 {$IFNDEF TESTINSIGHT}

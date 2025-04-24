@@ -40,7 +40,7 @@ type
   [TestFixture]
   TTestFluentCQLFirebird = class
   private
-    FProvider: IFluentQueryable<String>;
+    FQueryable: IFluentQueryable<String>;
     FFDConnection: TFDConnection;
     FConnection: IDBConnection;
     function GetSQL: string;
@@ -153,7 +153,7 @@ uses
 
 function TTestFluentCQLFirebird.GetSQL: string;
 begin
-  Result := FProvider.AsString;
+  Result := FQueryable.AsString;
 end;
 
 procedure TTestFluentCQLFirebird.Setup;
@@ -171,7 +171,7 @@ begin
 
   FConnection := TFactoryFireDAC.Create(FFDConnection, TDBEngineDriver.dnFirebird);
 
-  FProvider := IFluentQueryable<String>.CreateForDatabase(
+  FQueryable := IFluentQueryable<String>.CreateForDatabase(
     procedure(var ADatabase: TDBEngineDriver; var AConnection: IDBConnection)
     begin
       ADatabase := TDBEngineDriver.dnFirebird;
@@ -187,7 +187,7 @@ end;
 
 procedure TTestFluentCQLFirebird.TestSelectAllFromClientes;
 begin
-  FProvider.Select('*').From('CLIENTES');
+  FQueryable.Select('*').From('CLIENTES');
   Assert.AreEqual('SELECT * FROM CLIENTES', GetSQL, 'SQL gerado incorreto');
 end;
 
@@ -290,69 +290,69 @@ end;
 
 procedure TTestFluentCQLFirebird.TestFromBeforeSelect;
 begin
-  FProvider.From('CLIENTES').Select('*');
+  FQueryable.From('CLIENTES').Select('*');
 
   Assert.AreEqual('SELECT * FROM CLIENTES', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestSelectBeforeWhere;
 begin
-  FProvider.Select('*').Where('NOME = ''Ana''').From('CLIENTES');
+  FQueryable.Select('*').Where('NOME = ''Ana''').From('CLIENTES');
 
   Assert.AreEqual('SELECT * FROM CLIENTES WHERE NOME = ''Ana''', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestInnerJoin;
 begin
-  FProvider.Select('*').From('CLIENTES').InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE');
+  FQueryable.Select('*').From('CLIENTES').InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE');
 
   Assert.AreEqual('SELECT * FROM CLIENTES INNER JOIN PEDIDOS AS P ON CLIENTES.ID = P.ID_CLIENTE', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestGroupBy;
 begin
-  FProvider.Select('COUNT(*)').From('PEDIDOS').GroupBy('CLIENTE_ID');
+  FQueryable.Select('COUNT(*)').From('PEDIDOS').GroupBy('CLIENTE_ID');
 
   Assert.AreEqual('SELECT COUNT(*) FROM PEDIDOS GROUP BY CLIENTE_ID', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestOrderBy;
 begin
-  FProvider.From('CLIENTES').Select('*').OrderBy('NOME');
+  FQueryable.From('CLIENTES').Select('*').OrderBy('NOME');
 
   Assert.AreEqual('SELECT * FROM CLIENTES ORDER BY NOME ASC', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestWhereJoinSelect;
 begin
-  FProvider.Where('NOME > ''B''').InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE').Select('*').From('CLIENTES');
+  FQueryable.Where('NOME > ''B''').InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE').Select('*').From('CLIENTES');
 
   Assert.AreEqual('SELECT * FROM CLIENTES INNER JOIN PEDIDOS AS P ON CLIENTES.ID = P.ID_CLIENTE WHERE NOME > ''B''', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestWhereCompositeConditions;
 begin
-  FProvider.Select('*').From('CLIENTES').Where('ID > 10 AND NOME < ''Z''');
+  FQueryable.Select('*').From('CLIENTES').Where('ID > 10 AND NOME < ''Z''');
   Assert.AreEqual('SELECT * FROM CLIENTES WHERE ID > 10 AND NOME < ''Z''', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestSelectSpecificColumns;
 begin
-  FProvider.Select('NOME, IDADE').From('CLIENTES');
+  FQueryable.Select('NOME, IDADE').From('CLIENTES');
 
   Assert.AreEqual('SELECT NOME, IDADE FROM CLIENTES', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestTableAlias;
 begin
-  FProvider.Select('*').From('CLIENTES', 'C');
+  FQueryable.Select('*').From('CLIENTES', 'C');
 
   Assert.AreEqual('SELECT * FROM CLIENTES AS C', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestMultipleJoins;
 begin
-  FProvider.Select('*').From('CLIENTES')
+  FQueryable.Select('*').From('CLIENTES')
     .InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE')
     .InnerJoin('ITENS', 'I').OnCond('P.ID = I.ID_PEDIDO');
 
@@ -361,14 +361,14 @@ end;
 
 procedure TTestFluentCQLFirebird.TestWhereWithLike;
 begin
-  FProvider.Select('*').From('CLIENTES').Where('NOME LIKE ''A%''');
+  FQueryable.Select('*').From('CLIENTES').Where('NOME LIKE ''A%''');
 
   Assert.AreEqual('SELECT * FROM CLIENTES WHERE NOME LIKE ''A%''', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestWhereWithOrAndParentheses;
 begin
-  FProvider.Select('*').From('CLIENTES')
+  FQueryable.Select('*').From('CLIENTES')
     .Where('NOME > ''A'' OR (IDADE < 30 AND STATUS = ''ATIVO'')');
 
   Assert.AreEqual('SELECT * FROM CLIENTES WHERE NOME > ''A'' OR (IDADE < 30 AND STATUS = ''ATIVO'')', GetSQL, 'SQL gerado incorreto');
@@ -376,14 +376,14 @@ end;
 
 procedure TTestFluentCQLFirebird.TestSelectWithAliasColumns;
 begin
-  FProvider.Select('NOME AS NomeCliente, IDADE AS IdadeCliente').From('CLIENTES');
+  FQueryable.Select('NOME AS NomeCliente, IDADE AS IdadeCliente').From('CLIENTES');
 
   Assert.AreEqual('SELECT NOME AS NomeCliente, IDADE AS IdadeCliente FROM CLIENTES', GetSQL, 'SQL gerado incorreto');
 end;
 
 procedure TTestFluentCQLFirebird.TestJoinWithMultipleConditions;
 begin
-  FProvider.Select('*').From('CLIENTES')
+  FQueryable.Select('*').From('CLIENTES')
     .InnerJoin('PEDIDOS', 'P').OnCond('CLIENTES.ID = P.ID_CLIENTE AND CLIENTES.STATUS = P.STATUS');
 
   Assert.AreEqual('SELECT * FROM CLIENTES INNER JOIN PEDIDOS AS P ON CLIENTES.ID = P.ID_CLIENTE AND CLIENTES.STATUS = P.STATUS', GetSQL, 'SQL gerado incorreto');
@@ -391,14 +391,14 @@ end;
 
 procedure TTestFluentCQLFirebird.TestEmptyWhereClause;
 begin
-  FProvider.Select('*').From('CLIENTES').Where('');
+  FQueryable.Select('*').From('CLIENTES').Where('');
 
   Assert.AreEqual('SELECT * FROM CLIENTES', GetSQL, 'SQL gerado incorreto (WHERE vazio deve ser ignorado)');
 end;
 
 procedure TTestFluentCQLFirebird.TestOrderByMultipleColumns;
 begin
-  FProvider.Select.From('PEDIDOS').OrderBy('DATA, VALOR');
+  FQueryable.Select.From('PEDIDOS').OrderBy('DATA, VALOR');
 
   Assert.AreEqual('SELECT * FROM PEDIDOS ORDER BY DATA, VALOR ASC', GetSQL, 'SQL gerado incorreto');
 end;
@@ -473,22 +473,22 @@ end;
 
 procedure TTestFluentCQLFirebird.TestSelectSingleFieldString;
 var
-  LProvider: IFluentQueryable<string>;
+  LQueryable: IFluentQueryable<string>;
   LResults: IFluentList<string>;
   FoundBruno, FoundClara: Boolean;
   LItem: string;
 begin
-  LProvider := IFluentQueryable<string>.CreateForDatabase(
+  LQueryable := IFluentQueryable<string>.CreateForDatabase(
     procedure(var ADatabase: TDBEngineDriver; var AConnection: IDBConnection)
     begin
       ADatabase := TDBEngineDriver.dnFirebird;
       AConnection := FConnection;
     end);
 
-  LProvider.From('CLIENTES').Where('NOME > ''Ana''').Select('NOME');
-  Assert.AreEqual('SELECT NOME FROM CLIENTES WHERE NOME > ''Ana''', LProvider.AsString, 'SQL generated incorrectly');
+  LQueryable.From('CLIENTES').Where('NOME > ''Ana''').Select('NOME');
+  Assert.AreEqual('SELECT NOME FROM CLIENTES WHERE NOME > ''Ana''', LQueryable.AsString, 'SQL generated incorrectly');
 
-  LResults := LProvider.ToList;
+  LResults := LQueryable.ToList;
   Assert.AreEqual(2, LResults.Count, 'Incorrect number of records returned');
 
   // Check if 'Bruno' and 'Clara' are in the list
