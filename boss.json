@@ -6,8 +6,8 @@
 	"mainsrc": "./Source",
 	"projects": [],
 	"dependencies": {
-		"github.com/moderndelphiworks/cquery4d": "^v",
-		"github.com/moderndelphiworks/dbengine4d": "^v",
-		"github.com/moderndelphiworks/evolution4d": "^v"
+		"https://github.com/moderndelphiworks/cquery4d": "^v",
+		"https://github.com/moderndelphiworks/dbengine4d": "^v",
+		"https://github.com/moderndelphiworks/evolution4d": "^v"
 	}
 }
