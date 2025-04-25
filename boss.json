@@ -1,7 +1,7 @@
 {
 	"name": "Fluent4D",
 	"description": "A powerful and intuitive library for fluent-style data manipulation in Delphi",
-	"version": "1.0.0",
+	"version": "",
 	"homepage": "https://github.com/moderndelphiworks",
 	"mainsrc": "./Source",
 	"projects": [],
