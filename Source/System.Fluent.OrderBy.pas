@@ -32,7 +32,8 @@ interface
 
 uses
   SysUtils,
-  System.Fluent;
+  System.Fluent,
+  System.Fluent.Collections;
 
 type
   TFluentOrderByEnumerable<T> = class(TFluentEnumerableBase<T>)
@@ -40,7 +41,8 @@ type
     FSource: IFluentEnumerableBase<T>;
     FComparer: TFunc<T, T, Integer>;
   public
-    constructor Create(const ASource: IFluentEnumerableBase<T>; const AComparer: TFunc<T, T, Integer>);
+    constructor Create(const ASource: IFluentEnumerableBase<T>;
+      const AComparer: TFunc<T, T, Integer>);
     function GetEnumerator: IFluentEnumerator<T>; override;
   end;
 
@@ -65,7 +67,8 @@ uses
 
 { TFluentOrderByEnumerable<T> }
 
-constructor TFluentOrderByEnumerable<T>.Create(const ASource: IFluentEnumerableBase<T>; const AComparer: TFunc<T, T, Integer>);
+constructor TFluentOrderByEnumerable<T>.Create(const ASource: IFluentEnumerableBase<T>;
+  const AComparer: TFunc<T, T, Integer>);
 begin
   FSource := ASource;
   FComparer := AComparer;
@@ -78,23 +81,39 @@ end;
 
 { TFluentOrderByEnumerator<T> }
 
+//constructor TFluentOrderByEnumerator<T>.Create(const ASource: IFluentEnumerator<T>;
+//  const AComparer: TFunc<T, T, Integer>);
+//var
+//  LList: IFluentList<T>;
+//begin
+//  LList := TFluentList<T>.Create;
+//  while ASource.MoveNext do
+//    LList.Add(ASource.Current);
+//  FItems := LList.ToArray.ArrayData;
+//  TArray.Sort<T>(FItems, TComparer<T>.Construct(
+//    function(const Left, Right: T): Integer
+//    begin
+//      Result := AComparer(Left, Right);
+//    end));
+//  FIndex := -1;
+//end;
+
 constructor TFluentOrderByEnumerator<T>.Create(const ASource: IFluentEnumerator<T>; const AComparer: TFunc<T, T, Integer>);
 var
-  LList: TList<T>;
+  LList: IFluentList<T>;
 begin
-  LList := TList<T>.Create;
-  try
-    while ASource.MoveNext do
+  LList := TFluentList<T>.Create;
+  while ASource.MoveNext do
+  begin
+    if not TEqualityComparer<T>.Default.Equals(ASource.Current, Default(T)) then
       LList.Add(ASource.Current);
-    FItems := LList.ToArray;
-    TArray.Sort<T>(FItems, TComparer<T>.Construct(
-      function(const Left, Right: T): Integer
-      begin
-        Result := AComparer(Left, Right);
-      end));
-  finally
-    LList.Free;
   end;
+  FItems := LList.ToArray.ArrayData;
+  TArray.Sort<T>(FItems, TComparer<T>.Construct(
+    function(const Left, Right: T): Integer
+    begin
+      Result := AComparer(Left, Right);
+    end));
   FIndex := -1;
 end;
 

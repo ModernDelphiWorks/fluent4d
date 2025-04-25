@@ -70,7 +70,7 @@ type
     [Test]
     procedure TestToStringWithFormat;
 
-    // Testes Lazy reutilizados do TFluentArray<T>
+    // Testes Lazy reutilizados do TFluenIFluentArray<T>
     [Test]
     procedure TestLazyToArray;
     [Test]
@@ -169,11 +169,11 @@ end;
 procedure TArrayStaticTest.TestFrom;
 var
   LEnum: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LEnum := TFluentArray.From<Integer>([1, 2, 3]);
   LArray := LEnum.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'From should create enumerable with 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'From should create enumerable with 3 elements');
   Assert.AreEqual(1, LArray[0], 'First element should be 1');
   Assert.AreEqual(3, LArray[2], 'Last element should be 3');
 end;
@@ -289,7 +289,7 @@ var
   LSource: TArray<Integer>;
   LDest: array[0..5] of Integer;
 begin
-  // Demonstra uso com TArray<T>, simplificando a atribuição, mas funciona.
+  // Demonstra uso com IFluentArray<T>, simplificando a atribuição, mas funciona.
   LSource := [1, 2, 3, 4, 5];
   LDest[0] := 0; LDest[1] := 0; LDest[2] := 0; LDest[3] := 0; LDest[4] := 0; LDest[5] := 0;
   TFluentArray.Copy<Integer>(LSource, LDest, 1, 2, 3);
@@ -316,10 +316,11 @@ end;
 
 procedure TArrayStaticTest.TestConcat;
 var
-  LResult: TArray<Integer>;
+  LResult: IFluentArray<Integer>;
 begin
-  LResult := TFluentArray.Concat<Integer>([TArray<Integer>.Create(1, 2), TArray<Integer>.Create(3, 4)]);
-  Assert.AreEqual(4, Length(LResult), 'Concat should have 4 elements');
+  LResult := TFluentArray.Concat<Integer>([TArray<Integer>.Create(1, 2),
+                                           TArray<Integer>.Create(3, 4)]);
+  Assert.AreEqual(4, LResult.Length, 'Concat should have 4 elements');
   Assert.AreEqual(1, LResult[0], 'First element should be 1');
   Assert.AreEqual(4, LResult[3], 'Last element should be 4');
 end;
@@ -419,26 +420,22 @@ end;
 // Testes Lazy
 procedure TArrayStaticTest.TestLazyToArray;
 var
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LArray := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).ToArray;
-  Assert.AreEqual(5, Length(LArray), 'Array length should be 5');
+  Assert.AreEqual(5, LArray.Length, 'Array length should be 5');
   Assert.AreEqual(1, LArray[0], 'First element should be 1');
   Assert.AreEqual(5, LArray[4], 'Last element should be 5');
 end;
 
 procedure TArrayStaticTest.TestLazyToList;
 var
-  LResult: TList<Integer>;
+  LResult: IFluentList<Integer>;
 begin
   LResult := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).ToList;
-  try
-    Assert.AreEqual(5, LResult.Count, 'List count should be 5');
-    Assert.AreEqual(1, LResult[0], 'First element should be 1');
-    Assert.AreEqual(5, LResult[4], 'Last element should be 5');
-  finally
-    LResult.Free;
-  end;
+  Assert.AreEqual(5, LResult.Count, 'List count should be 5');
+  Assert.AreEqual(1, LResult[0], 'First element should be 1');
+  Assert.AreEqual(5, LResult[4], 'Last element should be 5');
 end;
 
 procedure TArrayStaticTest.TestLazyCount;
@@ -532,11 +529,11 @@ end;
 procedure TArrayStaticTest.TestLazyDistinct;
 var
   LDistinct: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LDistinct := TFluentArray.From<Integer>([1, 2, 2, 3, 3, 4, 5, 5]).Distinct;
   LArray := LDistinct.ToArray;
-  Assert.AreEqual(5, Length(LArray), 'Distinct array should have 5 unique elements');
+  Assert.AreEqual(5, LArray.Length, 'Distinct array should have 5 unique elements');
   Assert.AreEqual(1, LArray[0], 'First element should be 1');
   Assert.AreEqual(5, LArray[4], 'Last element should be 5');
 end;
@@ -544,7 +541,7 @@ end;
 procedure TArrayStaticTest.TestLazyFilter;
 var
   LFiltered: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LFiltered := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Where(
     function(Value: Integer): Boolean
@@ -552,7 +549,7 @@ begin
       Result := Value > 3;
     end);
   LArray := LFiltered.ToArray;
-  Assert.AreEqual(2, Length(LArray), 'Filtered array should have 2 elements');
+  Assert.AreEqual(2, LArray.Length, 'Filtered array should have 2 elements');
   Assert.AreEqual(4, LArray[0], 'First element should be 4');
   Assert.AreEqual(5, LArray[1], 'Last element should be 5');
 end;
@@ -560,11 +557,11 @@ end;
 procedure TArrayStaticTest.TestLazyTake;
 var
   LTaken: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LTaken := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Take(3);
   LArray := LTaken.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Taken array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Taken array should have 3 elements');
   Assert.AreEqual(1, LArray[0], 'First element should be 1');
   Assert.AreEqual(3, LArray[2], 'Last element should be 3');
 end;
@@ -572,11 +569,11 @@ end;
 procedure TArrayStaticTest.TestLazySkip;
 var
   LSkipped: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LSkipped := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Skip(2);
   LArray := LSkipped.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Skipped array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Skipped array should have 3 elements');
   Assert.AreEqual(3, LArray[0], 'First element should be 3');
   Assert.AreEqual(5, LArray[2], 'Last element should be 5');
 end;
@@ -584,7 +581,7 @@ end;
 procedure TArrayStaticTest.TestLazyOrderBy;
 var
   LOrdered: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LOrdered := TFluentArray.From<Integer>([5, 2, 4, 1, 3]).OrderBy(
     function(A, B: Integer): Integer
@@ -592,7 +589,7 @@ begin
       Result := A - B;
     end);
   LArray := LOrdered.ToArray;
-  Assert.AreEqual(5, Length(LArray), 'Ordered array should have 5 elements');
+  Assert.AreEqual(5, LArray.Length, 'Ordered array should have 5 elements');
   Assert.AreEqual(1, LArray[0], 'First element should be 1');
   Assert.AreEqual(5, LArray[4], 'Last element should be 5');
 end;
@@ -612,7 +609,7 @@ end;
 procedure TArrayStaticTest.TestLazyMap;
 var
   LMapped: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LMapped := TFluentArray.From<Integer>([1, 2, 3, 4, 5]).Select<Integer>(
     function(Value: Integer): Integer
@@ -620,17 +617,17 @@ begin
       Result := Value * 2;
     end);
   LArray := LMapped.ToArray;
-  Assert.AreEqual(5, Length(LArray), 'Mapped array should have 5 elements');
+  Assert.AreEqual(5, LArray.Length, 'Mapped array should have 5 elements');
   Assert.AreEqual(2, LArray[0], 'First element should be 2');
   Assert.AreEqual(10, LArray[4], 'Last element should be 10');
 end;
 
 procedure TArrayStaticTest.TestLazyGroupBy;
 var
-  LGroups: IGroupByResult<Integer, Integer>;
+  LGroups: IGroupByEnumerable<Integer, Integer>;
   LEnum: IFluentEnumerator<IGrouping<Integer, Integer>>;
   LGroup: IGrouping<Integer, Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
   LCount: Integer;
 begin
   LGroups := TFluentArray.From<Integer>([1, 2, 3, 4, 5, 6]).GroupBy<Integer>(
@@ -647,14 +644,14 @@ begin
     if LGroup.Key = 0 then
     begin
       LArray := LGroup.Items.ToArray;
-      Assert.AreEqual(3, Length(LArray), 'Group of evens should have 3 elements');
+      Assert.AreEqual(3, LArray.Length, 'Group of evens should have 3 elements');
       Assert.AreEqual(2, LArray[0], 'First even should be 2');
       Assert.AreEqual(6, LArray[2], 'Last even should be 6');
     end
     else if LGroup.Key = 1 then
     begin
       LArray := LGroup.Items.ToArray;
-      Assert.AreEqual(3, Length(LArray), 'Group of odds should have 3 elements');
+      Assert.AreEqual(3, LArray.Length, 'Group of odds should have 3 elements');
       Assert.AreEqual(1, LArray[0], 'First odd should be 1');
       Assert.AreEqual(5, LArray[2], 'Last odd should be 5');
     end;
@@ -665,7 +662,7 @@ end;
 procedure TArrayStaticTest.TestLazyZip;
 var
   LZipped: IFluentEnumerable<string>;
-  LArray: TArray<string>;
+  LArray: IFluentArray<string>;
 begin
   LZipped := TFluentArray.From<Integer>([1, 2, 3]).Zip<string, string>(
     TFluentArray.From<string>(['A', 'B', 'C']),
@@ -674,7 +671,7 @@ begin
       Result := Num.ToString + Letter;
     end);
   LArray := LZipped.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Zipped array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Zipped array should have 3 elements');
   Assert.AreEqual('1A', LArray[0], 'First element should be "1A"');
   Assert.AreEqual('2B', LArray[1], 'Second element should be "2B"');
   Assert.AreEqual('3C', LArray[2], 'Third element should be "3C"');
@@ -683,7 +680,7 @@ end;
 procedure TArrayStaticTest.TestLazyJoin;
 var
   LJoined: IFluentEnumerable<string>;
-  LArray: TArray<string>;
+  LArray: IFluentArray<string>;
 begin
   LJoined := TFluentArray.From<Integer>([1, 2, 3]).Join<string, Integer, string>(
     TFluentArray.From<string>(['A1', 'B2', 'C3']),
@@ -700,7 +697,7 @@ begin
       Result := Str + '-' + Num.ToString;
     end);
   LArray := LJoined.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Joined array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Joined array should have 3 elements');
   Assert.AreEqual('A1-1', LArray[0], 'First element should be "A1-1"');
   Assert.AreEqual('B2-2', LArray[1], 'Second element should be "B2-2"');
   Assert.AreEqual('C3-3', LArray[2], 'Third element should be "C3-3"');
@@ -709,7 +706,7 @@ end;
 procedure TArrayStaticTest.TestLazyMapLazy;
 var
   LMapped: IFluentEnumerable<string>;
-  LArray: TArray<string>;
+  LArray: IFluentArray<string>;
 begin
   LMapped := TFluentArray.From<Integer>([1, 2, 3]).Select<string>(
     function(Value: Integer): string
@@ -719,7 +716,7 @@ begin
     end);
   Writeln('Map chamado, mas ainda não iterado');
   LArray := LMapped.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Mapped array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Mapped array should have 3 elements');
   Assert.AreEqual('1x', LArray[0], 'First element should be "1x"');
   Assert.AreEqual('2x', LArray[1], 'Second element should be "2x"');
   Assert.AreEqual('3x', LArray[2], 'Third element should be "3x"');
@@ -728,7 +725,7 @@ end;
 procedure TArrayStaticTest.TestLazyOrderByLazy;
 var
   LOrdered: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LOrdered := TFluentArray.From<Integer>([3, 1, 4, 1, 5]).Where(
     function(Value: Integer): Boolean
@@ -743,7 +740,7 @@ begin
     end);
   Writeln('OrderBy chamado, mas ainda não iterado');
   LArray := LOrdered.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Ordered array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Ordered array should have 3 elements');
   Assert.AreEqual(3, LArray[0], 'First element should be 3');
   Assert.AreEqual(4, LArray[1], 'Second element should be 4');
   Assert.AreEqual(5, LArray[2], 'Third element should be 5');
@@ -752,7 +749,7 @@ end;
 procedure TArrayStaticTest.TestLazyDistinctLazy;
 var
   LDistinct: IFluentEnumerable<Integer>;
-  LArray: TArray<Integer>;
+  LArray: IFluentArray<Integer>;
 begin
   LDistinct := TFluentArray.From<Integer>([3, 1, 4, 1, 5, 3]).Where(
     function(Value: Integer): Boolean
@@ -762,7 +759,7 @@ begin
     end).Distinct;
   Writeln('Distinct chamado, mas ainda não iterado');
   LArray := LDistinct.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Distinct array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Distinct array should have 3 elements');
   Assert.AreEqual(3, LArray[0], 'First element should be 3');
   Assert.AreEqual(4, LArray[1], 'Second element should be 4');
   Assert.AreEqual(5, LArray[2], 'Third element should be 5');
@@ -771,7 +768,7 @@ end;
 procedure TArrayStaticTest.TestLazyZipLazy;
 var
   LZipped: IFluentEnumerable<string>;
-  LArray: TArray<string>;
+  LArray: IFluentArray<string>;
 begin
   LZipped := TFluentArray.From<Integer>([1, 2, 3]).Zip<string, string>(
     TFluentArray.From<string>(['A', 'B', 'C']),
@@ -782,7 +779,7 @@ begin
     end);
   Writeln('Zip chamado, mas ainda não iterado');
   LArray := LZipped.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Zipped array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Zipped array should have 3 elements');
   Assert.AreEqual('1A', LArray[0], 'First element should be "1A"');
   Assert.AreEqual('2B', LArray[1], 'Second element should be "2B"');
   Assert.AreEqual('3C', LArray[2], 'Third element should be "3C"');
@@ -791,7 +788,7 @@ end;
 procedure TArrayStaticTest.TestLazyJoinLazy;
 var
   LJoined: IFluentEnumerable<string>;
-  LArray: TArray<string>;
+  LArray: IFluentArray<string>;
 begin
   LJoined := TFluentArray.From<Integer>([1, 2, 3]).Join<string, Integer, string>(
     TFluentArray.From<string>(['A1', 'B2', 'C3']),
@@ -810,7 +807,7 @@ begin
     end);
   Writeln('Join chamado, mas ainda não iterado');
   LArray := LJoined.ToArray;
-  Assert.AreEqual(3, Length(LArray), 'Joined array should have 3 elements');
+  Assert.AreEqual(3, LArray.Length, 'Joined array should have 3 elements');
   Assert.AreEqual('A1-1', LArray[0], 'First element should be "A1-1"');
   Assert.AreEqual('B2-2', LArray[1], 'Second element should be "B2-2"');
   Assert.AreEqual('C3-3', LArray[2], 'Third element should be "C3-3"');

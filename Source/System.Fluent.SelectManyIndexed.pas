@@ -38,21 +38,23 @@ type
   TFluentSelectManyIndexedEnumerable<T, TResult> = class(TFluentEnumerableBase<TResult>)
   private
     FSource: IFluentEnumerableBase<T>;
-    FSelector: TFunc<T, Integer, TArray<TResult>>;
+    FSelector: TFunc<T, Integer, IFluentArray<TResult>>;
   public
-    constructor Create(const ASource: IFluentEnumerableBase<T>; const ASelector: TFunc<T, Integer, TArray<TResult>>);
+    constructor Create(const ASource: IFluentEnumerableBase<T>;
+      const ASelector: TFunc<T, Integer, IFluentArray<TResult>>);
     function GetEnumerator: IFluentEnumerator<TResult>; override;
   end;
 
   TFluentSelectManyIndexedEnumerator<T, TResult> = class(TInterfacedObject, IFluentEnumerator<TResult>)
   private
     FSource: IFluentEnumerator<T>;
-    FSelector: TFunc<T, Integer, TArray<TResult>>;
-    FCurrentArray: TArray<TResult>;
+    FSelector: TFunc<T, Integer, IFluentArray<TResult>>;
+    FCurrentArray: IFluentArray<TResult>;
     FIndex: Integer;
     FSourceIndex: Integer;
   public
-    constructor Create(const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, Integer, TArray<TResult>>);
+    constructor Create(const ASource: IFluentEnumerator<T>;
+      const ASelector: TFunc<T, Integer, IFluentArray<TResult>>);
     function GetCurrent: TResult;
     function MoveNext: Boolean;
     procedure Reset;
@@ -64,7 +66,8 @@ implementation
 { TFluentSelectManyIndexedEnumerable<T, TResult> }
 
 constructor TFluentSelectManyIndexedEnumerable<T, TResult>.Create(
-  const ASource: IFluentEnumerableBase<T>; const ASelector: TFunc<T, Integer, TArray<TResult>>);
+  const ASource: IFluentEnumerableBase<T>;
+  const ASelector: TFunc<T, Integer, IFluentArray<TResult>>);
 begin
   FSource := ASource;
   FSelector := ASelector;
@@ -78,7 +81,8 @@ end;
 { TFluentSelectManyIndexedEnumerator<T, TResult> }
 
 constructor TFluentSelectManyIndexedEnumerator<T, TResult>.Create(
-  const ASource: IFluentEnumerator<T>; const ASelector: TFunc<T, Integer, TArray<TResult>>);
+  const ASource: IFluentEnumerator<T>;
+  const ASelector: TFunc<T, Integer, IFluentArray<TResult>>);
 begin
   FSource := ASource;
   FSelector := ASelector;
@@ -88,7 +92,7 @@ end;
 
 function TFluentSelectManyIndexedEnumerator<T, TResult>.GetCurrent: TResult;
 begin
-  if (FIndex >= 0) and (FIndex < Length(FCurrentArray)) then
+  if (FIndex >= 0) and (FIndex < FCurrentArray.Length) then
     Result := FCurrentArray[FIndex]
   else
     raise ERangeError.Create('Index out of bounds');
@@ -98,7 +102,7 @@ function TFluentSelectManyIndexedEnumerator<T, TResult>.MoveNext: Boolean;
 begin
   while True do
   begin
-    if (FIndex >= 0) and (FIndex < Length(FCurrentArray) - 1) then
+    if (FIndex >= 0) and (FIndex < FCurrentArray.Length - 1) then
     begin
       Inc(FIndex);
       Result := True;
@@ -112,7 +116,7 @@ begin
     Inc(FSourceIndex);
     FCurrentArray := FSelector(FSource.Current, FSourceIndex);
     FIndex := 0;
-    if Length(FCurrentArray) > 0 then
+    if FCurrentArray.Length > 0 then
     begin
       Result := True;
       Exit;

@@ -44,6 +44,8 @@ type
   private
     FArray: TArray<T>;
     FOwnsArray: Boolean;
+    function GetItem(AIndex: NativeInt): T;
+    procedure SetItem(AIndex: NativeInt; const AValue: T);
     function GetEnumerable: IFluentEnumerable<T>;
     function _GetArray: TArray<T>;
   public
@@ -54,6 +56,7 @@ type
     procedure SetItems(const AItems: TArray<T>);
     function AsEnumerable: IFluentEnumerable<T>;
     function GetEnumerator: IFluentEnumerator<T>;
+    function Length: Integer;
   end;
 
   TFluentArray = record
@@ -69,7 +72,7 @@ type
     class function BinarySearch<T>(const AValues: array of T; const AItem: T; out FoundIndex: NativeInt): Boolean; overload; static;
     class procedure Copy<T>(const Source: array of T; var Destination: array of T; SourceIndex, DestIndex, Count: NativeInt); overload; static;
     class procedure Copy<T>(const Source: array of T; var Destination: array of T; Count: NativeInt); overload; static;
-    class function Concat<T>(const Args: array of TArray<T>): TArray<T>; static;
+    class function Concat<T>(const Args: array of TArray<T>): IFluentArray<T>; static;
     class function IndexOf<T>(const AValues: array of T; const AItem: T): NativeInt; overload; static;
     class function IndexOf<T>(const AValues: array of T; const AItem: T; AIndex: NativeInt): NativeInt; overload; static;
     class function IndexOf<T>(const AValues: array of T; const AItem: T; const AComparer: IComparer<T>; AIndex, Count: NativeInt): NativeInt; overload; static;
@@ -157,11 +160,6 @@ type
     function ToArray: IFluentArray<T>;
     function AsEnumerable: IFluentEnumerable<T>;
     function GetEnumerator: IFluentEnumerator<T>;
-    property ACapacity: NativeInt read GetCapacity write SetCapacity;
-    property Items[AIndex: NativeInt]: T read GetItem write SetItem; default;
-    property List: IFluentArray<T> read GetList;
-    property AComparer: IComparer<T> read GetComparer;
-    property OnNotify: TCollectionNotifyEvent<T> read GetOnNotify write SetOnNotify;
   end;
 
   TFluentDictionary<K, V> = class(TInterfacedObject, IFluentDictionary<K, V>)
@@ -214,16 +212,6 @@ type
     function IsEmpty: Boolean;
     function AsEnumerable: IFluentEnumerable<TPair<K, V>>;
     function GetEnumerator: IFluentEnumerator<TPair<K, V>>;
-    //
-    property Capacity: NativeInt read GetCapacity write SetCapacity;
-    property GrowThreshold: NativeInt read GetGrowThreshold;
-    property Collisions: NativeInt read GetCollisions;
-    property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
-    property Values: TDictionary<K, V>.TValueCollection read GetValues;
-    property Comparer: IEqualityComparer<K> read GetComparer;
-    property Items[const AKey: K]: V read GetItem write SetItem; default;
-    property OnKeyNotify: TCollectionNotifyEvent<K> read GetOnKeyNotify write SetOnKeyNotify;
-    property OnValueNotify: TCollectionNotifyEvent<V> read GetOnValueNotify write SetOnValueNotify;
   end;
 
 implementation
@@ -261,9 +249,24 @@ begin
   Result := AsEnumerable.GetEnumerator;
 end;
 
+function TFluentArray<T>.GetItem(AIndex: NativeInt): T;
+begin
+  Result := FArray[AIndex];
+end;
+
+function TFluentArray<T>.Length: Integer;
+begin
+  Result := System.Length(FArray);
+end;
+
+procedure TFluentArray<T>.SetItem(AIndex: NativeInt; const AValue: T);
+begin
+  FArray[AIndex] := AValue;
+end;
+
 procedure TFluentArray<T>.SetItems(const AItems: TArray<T>);
 begin
-  FArray := Copy(AItems, 0, Length(AItems));
+  FArray := Copy(AItems, 0, System.Length(AItems));
 end;
 
 function TFluentArray<T>._GetArray: TArray<T>;
@@ -331,9 +334,12 @@ begin
   TArray.Copy<T>(Source, Destination, Count);
 end;
 
-class function TFluentArray.Concat<T>(const Args: array of TArray<T>): TArray<T>;
+class function TFluentArray.Concat<T>(const Args: array of TArray<T>): IFluentArray<T>;
+var
+  LArray: TArray<T>;
 begin
-  Result := TArray.Concat<T>(Args);
+  LArray := TArray.Concat<T>(Args);
+  Result := TFluentArray<T>.Create(LArray);
 end;
 
 class function TFluentArray.IndexOf<T>(const AValues: array of T; const AItem: T): NativeInt;
@@ -729,8 +735,11 @@ begin
 end;
 
 function TFluentList<T>.ToArray: IFluentArray<T>;
+var
+  LArray: TArray<T>;
 begin
-  Result := TFluentArray<T>.Create(FList.List);
+  LArray := Copy(FList.List, 0, FList.Count);
+  Result := TFluentArray<T>.Create(LArray, True);
   FList.Clear;
 end;
 

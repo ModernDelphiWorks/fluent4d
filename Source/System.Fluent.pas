@@ -230,7 +230,7 @@ type
     function Select<TResult>(
       const ASelector: TFunc<T, Integer, TResult>): IFluentEnumerable<TResult>; overload;
     function SelectMany<TResult>(const ASelector: TFunc<T, TArray<TResult>>): IFluentEnumerable<TResult>; overload;
-    function SelectMany<TResult>(const ASelector: TFunc<T, Integer, TArray<TResult>>): IFluentEnumerable<TResult>; overload;
+    function SelectMany<TResult>(const ASelector: TFunc<T, Integer, IFluentArray<TResult>>): IFluentEnumerable<TResult>; overload;
     function SelectMany<TCollection, TResult>(
       const ACollectionSelector: TFunc<T, TArray<TCollection>>;
       const AResultSelector: TFunc<T, TCollection, TResult>): IFluentEnumerable<TResult>; overload;
@@ -253,13 +253,6 @@ type
     function ThenByDescending<TKey>(const AKeySelector: TFunc<T, TKey>): IFluentEnumerable<T>;
     function ToArray: IFluentArray<T>;
     function ToList: IFluentList<T>;
-  end;
-
-  IFluentArray<T> = interface(IInterface)
-    ['{E3DF6D61-1A52-466E-8B16-CF7AAC574A02}']
-    function _GetArray: TArray<T>;
-    function AsEnumerable: IFluentEnumerable<T>;
-    property ArrayData: TArray<T> read _GetArray;
   end;
 
   IGroupByEnumerable<TKey, T> = interface(IInterface)
@@ -297,6 +290,19 @@ type
   IFluentEnumerableAdapter<TResult> = interface(IInterface)
     ['{69303F43-C266-437F-A790-4038CFDA0680}']
     function AsEnumerable: IFluentEnumerable<TResult>;
+  end;
+
+  IFluentArray<T> = interface(IInterface)
+    ['{E3DF6D61-1A52-466E-8B16-CF7AAC574A02}']
+    function GetItem(AIndex: NativeInt): T;
+    procedure SetItem(AIndex: NativeInt; const AValue: T);
+    function _GetArray: TArray<T>;
+    procedure SetItems(const AItems: TArray<T>);
+    function AsEnumerable: IFluentEnumerable<T>;
+    function GetEnumerator: IFluentEnumerator<T>;
+    function Length: Integer;
+    property ArrayData: TArray<T> read _GetArray;
+    property Items[AIndex: NativeInt]: T read GetItem write SetItem; default;
   end;
 
   ICollections<T> = interface(IFluentEnumerableBase<T>)
@@ -355,9 +361,9 @@ type
     function IsEmpty: Boolean;
     function ToArray: IFluentArray<T>;
     property Capacity: NativeInt read GetCapacity write SetCapacity;
-    property AItems[AIndex: NativeInt]: T read GetItem write SetItem; default;
+    property Items[AIndex: NativeInt]: T read GetItem write SetItem; default;
     property List: IFluentArray<T> read GetList;
-    property AComparer: IComparer<T> read GetComparer;
+    property Comparer: IComparer<T> read GetComparer;
     property OnNotify: TCollectionNotifyEvent<T> read GetOnNotify write SetOnNotify;
   end;
 
@@ -394,11 +400,12 @@ type
     function ContainsValue(const AValue: V): Boolean;
     function IsEmpty: Boolean;
     function ToArray: IFluentArray<TPair<K, V>>;
+    property Capacity: NativeInt read GetCapacity write SetCapacity;
     property GrowThreshold: NativeInt read GetGrowThreshold;
     property Collisions: NativeInt read GetCollisions;
     property Keys: TDictionary<K, V>.TKeyCollection read GetKeys;
     property Values: TDictionary<K, V>.TValueCollection read GetValues;
-    property AComparer: IEqualityComparer<K> read GetComparer;
+    property Comparer: IEqualityComparer<K> read GetComparer;
     property Items[const AKey: K]: V read GetItem write SetItem; default;
     property OnKeyNotify: TCollectionNotifyEvent<K> read GetOnKeyNotify write SetOnKeyNotify;
     property OnValueNotify: TCollectionNotifyEvent<V> read GetOnValueNotify write SetOnValueNotify;
@@ -2896,7 +2903,7 @@ begin
 end;
 
 function IFluentEnumerable<T>.SelectMany<TResult>(
-  const ASelector: TFunc<T, Integer, TArray<TResult>>): IFluentEnumerable<TResult>;
+  const ASelector: TFunc<T, Integer, IFluentArray<TResult>>): IFluentEnumerable<TResult>;
 begin
   if not Assigned(ASelector) then
     raise EArgumentNilException.Create('Selector cannot be nil');

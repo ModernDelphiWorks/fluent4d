@@ -72,7 +72,7 @@ end;
 procedure TFluentStringTest.TestWhere;
 var
   LString: string;
-  LFiltered: TArray<Char>;
+  LFiltered: IFluentArray<Char>;
 begin
   LString := 'Hello123';
   LFiltered := LString.Where(
@@ -80,7 +80,7 @@ begin
     begin
       Result := CharInSet(C, ['0'..'9']);
     end).ToArray;
-  Assert.AreEqual(3, Length(LFiltered), 'Filtered should have 3 digits');
+  Assert.AreEqual(3, LFiltered.Length, 'Filtered should have 3 digits');
   Assert.AreEqual('1', LFiltered[0], 'First digit should be 1');
   Assert.AreEqual('3', LFiltered[2], 'Last digit should be 3');
 end;
@@ -88,11 +88,11 @@ end;
 procedure TFluentStringTest.TestCollect;
 var
   LString: string;
-  LWords: TArray<string>;
+  LWords: IFluentArray<string>;
 begin
   LString := 'Hello World';
   LWords := LString.Collect.ToArray;
-  Assert.AreEqual(2, Length(LWords), 'Should have 2 words');
+  Assert.AreEqual(2, LWords.Length, 'Should have 2 words');
   Assert.AreEqual('Hello', LWords[0], 'First word should be Hello');
   Assert.AreEqual('World', LWords[1], 'Second word should be World');
 end;
@@ -100,7 +100,7 @@ end;
 procedure TFluentStringTest.TestSelect;
 var
   LString: string;
-  LMapped: TArray<Integer>;
+  LMapped: IFluentArray<Integer>;
 begin
   LString := 'abc';
   LMapped := LString.Select<Integer>(
@@ -108,7 +108,7 @@ begin
     begin
       Result := Ord(C);
     end).ToArray;
-  Assert.AreEqual(3, Length(LMapped), 'Mapped should have 3 elements');
+  Assert.AreEqual(3, LMapped.Length, 'Mapped should have 3 elements');
   Assert.AreEqual(97, LMapped[0], 'First should be ASCII of a');
   Assert.AreEqual(99, LMapped[2], 'Last should be ASCII of c');
 end;
@@ -123,7 +123,7 @@ begin
     function(C: Char): TArray<Char>
     begin
       Result := [C, C];
-    end).ToArray;
+    end).ToArray.ArrayData;
   Assert.AreEqual(4, Length(LFlatMapped), 'FlatMapped should have 4 chars');
   Assert.AreEqual('a', LFlatMapped[0], 'First should be a');
   Assert.AreEqual('b', LFlatMapped[2], 'Third should be b');
@@ -216,11 +216,11 @@ end;
 procedure TFluentStringTest.TestSort;
 var
   LString: string;
-  LSorted: TArray<Char>;
+  LSorted: IFluentArray<Char>;
 begin
   LString := 'cba';
   LSorted := LString.Sort.ToArray;
-  Assert.AreEqual(3, Length(LSorted), 'Sorted should have 3 chars');
+  Assert.AreEqual(3, LSorted.Length, 'Sorted should have 3 chars');
   Assert.AreEqual('a', LSorted[0], 'First should be a');
   Assert.AreEqual('c', LSorted[2], 'Last should be c');
 end;
@@ -228,11 +228,11 @@ end;
 procedure TFluentStringTest.TestTake;
 var
   LString: string;
-  LTaken: TArray<Char>;
+  LTaken: IFluentArray<Char>;
 begin
   LString := 'Hello';
   LTaken := LString.Take(3).ToArray;
-  Assert.AreEqual(3, Length(LTaken), 'Taken should have 3 chars');
+  Assert.AreEqual(3, LTaken.Length, 'Taken should have 3 chars');
   Assert.AreEqual('H', LTaken[0], 'First should be H');
   Assert.AreEqual('l', LTaken[2], 'Last should be l');
 end;
@@ -240,11 +240,11 @@ end;
 procedure TFluentStringTest.TestSkip;
 var
   LString: string;
-  LSkipped: TArray<Char>;
+  LSkipped: IFluentArray<Char>;
 begin
   LString := 'Hello';
   LSkipped := LString.Skip(2).ToArray;
-  Assert.AreEqual(3, Length(LSkipped), 'Skipped should have 3 chars');
+  Assert.AreEqual(3, LSkipped.Length, 'Skipped should have 3 chars');
   Assert.AreEqual('l', LSkipped[0], 'First should be l');
   Assert.AreEqual('o', LSkipped[2], 'Last should be o');
 end;
@@ -252,10 +252,10 @@ end;
 procedure TFluentStringTest.TestGroupBy;
 var
   LString: string;
-  LGroups: IGroupByResult<Boolean, Char>;
+  LGroups: IGroupByEnumerable<Boolean, Char>;
   LEnum: IFluentEnumerator<IGrouping<Boolean, Char>>;
   LGroup: IGrouping<Boolean, Char>;
-  LArray: TArray<Char>;
+  LArray: IFluentArray<Char>;
   LCount: Integer;
 begin
   LString := 'Hello';
@@ -273,11 +273,11 @@ begin
     LArray := LGroup.Items.ToArray;
     if LGroup.Key then
     begin
-      Assert.AreEqual(4, Length(LArray), 'Lowercase group should have 4 chars');
+      Assert.AreEqual(4, LArray.Length, 'Lowercase group should have 4 chars');
       Assert.AreEqual('e', LArray[0], 'First lowercase should be e');
     end
     else
-      Assert.AreEqual(1, Length(LArray), 'Uppercase group should have 1 char');
+      Assert.AreEqual(1, LArray.Length, 'Uppercase group should have 1 char');
   end;
   Assert.AreEqual(2, LCount, 'Should have 2 groups');
 end;
@@ -285,11 +285,11 @@ end;
 procedure TFluentStringTest.TestReverse;
 var
   LString: string;
-  LReversed: TArray<Char>;
+  LReversed: IFluentArray<Char>;
 begin
   LString := 'Hello';
   LReversed := LString.Reverse.ToArray;
-  Assert.AreEqual(5, Length(LReversed), 'Reversed should have 5 chars');
+  Assert.AreEqual(5, LReversed.Length, 'Reversed should have 5 chars');
   Assert.AreEqual('o', LReversed[0], 'First should be o');
   Assert.AreEqual('H', LReversed[4], 'Last should be H');
 end;
