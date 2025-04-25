@@ -3,7 +3,7 @@
 	"description": "A powerful and intuitive library for fluent-style data manipulation in Delphi",
 	"version": "",
 	"homepage": "https://github.com/moderndelphiworks",
-	"mainsrc": "./Source",
+	"mainsrc": "Source/",
 	"projects": [],
 	"dependencies": {
 		"https://github.com/moderndelphiworks/cquery4d": "^v0.0.1",
