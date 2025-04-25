@@ -18,7 +18,7 @@
 
 {
   @abstract(Fluent4D: Fluent Data Processing Framework for Delphi)
-  @description(A powerful and intuitive library for fluent-style data manipulation in Delphi)
+  @description(A powerful and intuitive framework for fluent-style data manipulation in Delphi)
   @created(03 Abr 2025)
   @author(Isaque Pinheiro <isaquepsp@gmail.com>)
   @Discord(https://discord.gg/T2zJC8zX)
