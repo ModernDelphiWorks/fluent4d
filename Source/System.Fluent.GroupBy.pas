@@ -173,7 +173,6 @@ type
 implementation
 
 uses
-  System.Fluent.Tuple,
   System.Fluent.Adapters,
   System.Fluent.Collections;
 

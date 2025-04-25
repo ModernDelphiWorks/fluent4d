@@ -350,7 +350,7 @@ type
 implementation
 
 uses
-  System.Fluent.Tuple,
+  System.Evolution.Tuple,
   System.Fluent.Parse,
   System.Fluent.Query.Provider,
   System.Fluent.Adapters,
@@ -1342,7 +1342,7 @@ var
   LValues: TArray<TValue>;
   LFor: Integer;
   LField: TField;
-  LTuple: TFluentTuple<string>;
+  LTuple: TTuple<string>;
   LValue: TValue;
   LResult: T;
 begin
@@ -1372,7 +1372,7 @@ begin
           raise EInvalidCast.Create('Unsupported field type: ' + GetEnumName(TypeInfo(TFieldType), Ord(LField.DataType)));
       end;
     end;
-    LTuple := TFluentTuple<string>.New(LKeys, LValues);
+    LTuple := TTuple<string>.New(LKeys, LValues);
     LValue := TValue.From(LTuple);
     if not LValue.TryAsType<T>(LResult) then
       raise EInvalidCast.Create('Cannot convert tuple to type T');

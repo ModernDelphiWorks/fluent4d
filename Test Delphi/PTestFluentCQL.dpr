@@ -56,7 +56,8 @@ uses
   System.Fluent.Json.Provider in '..\Source\System.Fluent.Json.Provider.pas',
   System.Fluent.Helpers in '..\Source\System.Fluent.Helpers.pas',
   System.Fluent.Parse in '..\Source\System.Fluent.Parse.pas',
-  System.Fluent.Expression in '..\Source\System.Fluent.Expression.pas';
+  System.Fluent.Expression in '..\Source\System.Fluent.Expression.pas',
+  System.Evolution.Tuple in '..\..\Evolution4D\Source\System.Evolution.Tuple.pas';
 
 { keep comment here to protect the following conditional from being removed by the IDE when adding a unit }
 {$IFNDEF TESTINSIGHT}

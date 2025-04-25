@@ -40,7 +40,7 @@ uses
   DBEngine.FactoryInterfaces,
   System.Fluent,
   System.Fluent.Collections,
-  System.Fluent.Tuple;
+  System.Evolution.Tuple;
 
 type
   // Parser for object types (classes)
@@ -189,7 +189,7 @@ var
   LValue: TValue;
   LKeys: TArray<string>;
   LValues: TArray<TValue>;
-  LTuple: TFluentTuple<string>;
+  LTuple: TTuple<string>;
   LField: TField;
   LFor: Integer;
   LContext: TRttiContext;
@@ -266,9 +266,9 @@ begin
         end
         else
         begin
-          LIsTupleValid := (LType.TypeKind = tkRecord) and (LType.Name = 'TFluentTuple<System.string>');
+          LIsTupleValid := (LType.TypeKind = tkRecord) and (LType.Name = 'TTuple<System.string>');
           if not LIsTupleValid then
-            raise Exception.Create('Multiple fields detected (FieldCount > 1). Use TFluentTuple<string> as the provider type.');
+            raise Exception.Create('Multiple fields detected (FieldCount > 1). Use TTuple<string> as the provider type.');
 
           SetLength(LKeys, ADataSet.FieldCount);
           SetLength(LValues, ADataSet.FieldCount);
@@ -292,12 +292,12 @@ begin
                 LValues[LFor] := TValue.From(LField.AsDateTime);
               ftBoolean:
                 LValues[LFor] := TValue.From(LField.AsBoolean);
-              else
-                raise EInvalidCast.Create('Unsupported field type: ' + GetEnumName(TypeInfo(TFieldType), Ord(LField.DataType)));
+            else
+              raise EInvalidCast.Create('Unsupported field type: ' + GetEnumName(TypeInfo(TFieldType), Ord(LField.DataType)));
             end;
             WriteLn('Valor do campo ', LKeys[LFor], ': ', LValues[LFor].ToString);
           end;
-          LTuple := TFluentTuple<string>.New(LKeys, LValues);
+          LTuple := TTuple<string>.New(LKeys, LValues);
           LValue := TValue.From(LTuple);
           if not LValue.TryAsType<T>(LItem) then
             raise EInvalidCast.Create('Cannot convert tuple to type T');
