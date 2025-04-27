@@ -91,7 +91,6 @@ type
     function Distinct: IFluentEnumerable<T>; overload;
     function Distinct(const AComparer: IEqualityComparer<T>): IFluentEnumerable<T>; overload;
     function DistinctBy<TKey>(const AKeySelector: TFunc<T, TKey>): IFluentEnumerable<T>;
-    function Select<TResult>(const ASelector: TFunc<T, TResult>): IFluentEnumerable<TResult>; overload;
     function Aggregate(const AReducer: TFunc<T, T, T>): T; overload;
     function Aggregate<TAcc>(const AInitialValue: TAcc; const AAccumulator: TFunc<TAcc, T, TAcc>): TAcc; overload;
     function Aggregate<TAccumulate, TResult>(const AInitialValue: TAccumulate;
@@ -227,8 +226,8 @@ type
     function Order(const AComparer: IComparer<T>): IFluentEnumerable<T>; overload;
     function OrderDescending: IFluentEnumerable<T>; overload;
     function OrderDescending(const AComparer: IComparer<T>): IFluentEnumerable<T>; overload;
-    function Select<TResult>(
-      const ASelector: TFunc<T, Integer, TResult>): IFluentEnumerable<TResult>; overload;
+    function Select<TResult>(const ASelector: TFunc<T, TResult>): IFluentEnumerable<TResult>; overload;
+    function Select<TResult>(const ASelector: TFunc<T, Integer, TResult>): IFluentEnumerable<TResult>; overload;
     function SelectMany<TResult>(const ASelector: TFunc<T, TArray<TResult>>): IFluentEnumerable<TResult>; overload;
     function SelectMany<TResult>(const ASelector: TFunc<T, Integer, IFluentArray<TResult>>): IFluentEnumerable<TResult>; overload;
     function SelectMany<TCollection, TResult>(

@@ -160,7 +160,7 @@ procedure TTestFluentCQLFirebird.Setup;
 begin
   FFDConnection := TFDConnection.Create(nil);
   FFDConnection.DriverName := 'FB';
-  FFDConnection.Params.Database := 'D:\PROJETOS-BRASIL\FLUENT4D\TEST DELPHI\CLIENTES.FDB'; // Ajuste o caminho
+  FFDConnection.Params.Database := 'D:\PROJETOS-4D\FLUENT4D\TEST DELPHI\CLIENTES.FDB'; // Ajuste o caminho
   FFDConnection.Params.UserName := 'SYSDBA';
   FFDConnection.Params.Password := 'masterkey';
   FFDConnection.Params.Add('Server=127.0.0.1');
