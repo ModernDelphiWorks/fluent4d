@@ -1,13 +1,13 @@
 {
 	"name": "Fluent4D",
 	"description": "A powerful and intuitive framework for fluent-style data manipulation in Delphi",
-	"version": "",
+	"version": "^0",
 	"homepage": "https://github.com/moderndelphiworks",
 	"mainsrc": "Source/",
 	"projects": [],
 	"dependencies": {
-		"github.com/moderndelphiworks/cquery4d": "^v0.0.0",
-		"github.com/moderndelphiworks/dbengine4d": "^v0.0.0",
-		"github.com/moderndelphiworks/evolution4d": "^v0.0.0"
+		"github.com/moderndelphiworks/cquery4d": "^0",
+		"github.com/moderndelphiworks/dbengine4d": "^0",
+		"github.com/moderndelphiworks/evolution4d": "^0"
 	}
 }
